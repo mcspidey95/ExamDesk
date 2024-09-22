@@ -178,6 +178,36 @@ public class StudentData {
         }
     }
 
+    public static class Staff{
+        String staffID;
+        String staffName;
+        String staffDept;
+        int totalSlots;
+
+        public Staff(String staffID, String staffName, String staffDept, int totalSlots) {
+            this.staffID = staffID;
+            this.staffName = staffName;
+            this.staffDept = staffDept;
+            this.totalSlots = totalSlots;
+        }
+
+        public String getStaffID() {
+            return staffID;
+        }
+
+        public String getStaffName() {
+            return staffName;
+        }
+
+        public String getStaffDept() {
+            return staffDept;
+        }
+
+        public int getTotalSlots() {
+            return totalSlots;
+        }
+    }
+
     public static void assignCoursesToSlots(Slots slots, Map<String, StudentCourses> studentCoursesMap, List<CourseInfo> leftoverCourses, List<CourseInfo> courseInfoList) {
         int slotIndex = 1;
         int clashedCourses = 0;
@@ -225,13 +255,34 @@ public class StudentData {
                 conflict = false;
                 Set<String> combinedSlotCourses = new HashSet<>();
                 Set<String> currentSlotCourses = new HashSet<>();
-                if (slotIndex > 1) {
-                    combinedSlotCourses.addAll(slots.getSlot(slotIndex - 2)); // Previous slot
+
+                int modIndex = (slotIndex-1)%3;
+                int mainslotIndex = slotIndex - 1;
+                int altslotIndex1 = 20;
+                int altslotIndex2 = 20;
+
+                if(modIndex == 0){
+                    altslotIndex1 = slotIndex;
+                    altslotIndex2 = slotIndex + 1;
                 }
-                combinedSlotCourses.addAll(slots.getSlot(slotIndex - 1)); // Current slot
-                currentSlotCourses.addAll(slots.getSlot(slotIndex - 1)); // Current slot
-                if (slotIndex < slots.getNumberOfSlots()) {
-                    combinedSlotCourses.addAll(slots.getSlot(slotIndex)); // Next slot
+                else if(modIndex == 1){
+                    altslotIndex1 = slotIndex - 2;
+                    altslotIndex2 = slotIndex;
+                }
+                else if(modIndex == 2){
+                    altslotIndex1 = slotIndex - 2;
+                    altslotIndex2 = slotIndex - 3;
+                }
+
+                combinedSlotCourses.addAll(slots.getSlot(mainslotIndex)); // Current slot
+                currentSlotCourses.addAll(slots.getSlot(mainslotIndex)); // Current slot
+
+                if(altslotIndex1 < slots.getNumberOfSlots()) {
+                    combinedSlotCourses.addAll(slots.getSlot(altslotIndex1));
+                }
+
+                if(altslotIndex2 < slots.getNumberOfSlots()) {
+                    combinedSlotCourses.addAll(slots.getSlot(altslotIndex2));
                 }
 
                 int totalStudentCount = 0;
@@ -245,7 +296,7 @@ public class StudentData {
                 }
 
                 for (String matchedCourse : matchedCourses) {
-                    if (currentSlotCourses.contains(matchedCourse) || totalStudentCount > 7506) {
+                    if (currentSlotCourses.contains(matchedCourse) || totalStudentCount > 6984) {
                         // Conflict found, increment the slot index and try again
                         slotIndex++;
                         if (slotIndex > slots.getNumberOfSlots()) {
@@ -457,7 +508,7 @@ public class StudentData {
         System.out.println("Other Objects Created!");
 
         List<CourseInfo> leftoverCourses = new ArrayList<>(courseInfoList);
-        Slots slots = new Slots(2);
+        Slots slots = new Slots(3);
 
         assignCoursesToSlots(slots, studentCoursesMap, leftoverCourses, courseInfoList);
         System.out.println("Slots after assigning courses: " + slots);
@@ -466,10 +517,39 @@ public class StudentData {
         //System.out.println("LeftOverCourses: " + leftoverCourses);
 
 
-        //for (int i = 0; i < slots.getNumberOfSlots(); i++) {
+        for (int i = 0; i < slots.getNumberOfSlots(); i++) {
             List<Room> rooms = new ArrayList<>();
-            generateSeatingArrangement(slots, studentCoursesMap, 0, rooms);
-        //}
+            generateSeatingArrangement(slots, studentCoursesMap, i, rooms);
+        }
+
+        List<Staff> invigilators = new ArrayList<>();
+        try (BufferedReader brrr = new BufferedReader(new FileReader("Invigilators.txt"))) {
+            String line;
+
+            brrr.readLine();
+
+            while ((line = brrr.readLine()) != null) {
+                String[] details = line.split("\t");
+
+                String staffID = details[0];
+                String staffDept = details[1];
+                String staffName = details[2];
+                int staffSlots = Integer.parseInt(details[3]);
+
+                invigilators.add(new Staff(staffID, staffName, staffDept, staffSlots));
+            }
+
+            brrr.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int slotSum = 0;
+        for(Staff staff : invigilators) {
+            slotSum += staff.getTotalSlots();
+        }
+
+        System.out.println("Total Staff Slots: " + slotSum);
     }
 
     // Merge Sort
