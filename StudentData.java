@@ -1,4 +1,6 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -183,12 +185,14 @@ public class StudentData {
         String staffName;
         String staffDept;
         int totalSlots;
+        String UsedLastSlot;
 
-        public Staff(String staffID, String staffName, String staffDept, int totalSlots) {
+        public Staff(String staffID, String staffName, String staffDept, int totalSlots, String UsedLastSlot) {
             this.staffID = staffID;
             this.staffName = staffName;
             this.staffDept = staffDept;
             this.totalSlots = totalSlots;
+            this.UsedLastSlot = UsedLastSlot;
         }
 
         public String getStaffID() {
@@ -205,6 +209,50 @@ public class StudentData {
 
         public int getTotalSlots() {
             return totalSlots;
+        }
+
+        public String getUsedLastSlot(){
+            return UsedLastSlot;
+        }
+
+        public void setUsedLastSlot(String UsedLastSlot){
+            this.UsedLastSlot = UsedLastSlot;
+        }
+
+        public void setTotalSlots(int totalSlots) {
+            this.totalSlots = totalSlots;
+        }
+    }
+
+    public static class InvigilatorRoom {
+        String locationId;
+        String invigilator;
+        String reliever;
+    
+        public InvigilatorRoom(String locationId, String invigilator, String reliever) {
+            this.locationId = locationId;
+            this.invigilator = invigilator;
+            this.reliever = reliever;
+        }
+    
+        public String getLocationId() {
+            return locationId;
+        }
+    
+        public String getInvigilator() {
+            return invigilator;
+        }
+
+        public String getReliever() {
+            return reliever;
+        }
+
+        public void setInvigilator(String invigilator) {
+            this.invigilator = invigilator;
+        }
+
+        public void setReliever(String reliever) {
+            this.reliever = reliever;
         }
     }
 
@@ -331,7 +379,7 @@ public class StudentData {
         }
     }
 
-    public static void generateSeatingArrangement(Slots slots, Map<String, StudentCourses> studentCoursesMap, int slotIndex, List<Room> rooms){
+    public static void generateSeatingArrangement(Slots slots, Map<String, StudentCourses> studentCoursesMap, int slotIndex, List<Room> rooms, Map<String, List<String>> seatingArrangement){
         int roomCount = 0;
 
         try (BufferedReader brrr = new BufferedReader(new FileReader("Rooms.txt"))) {
@@ -355,7 +403,7 @@ public class StudentData {
         // Get the courses for the given slot
         List<String> coursesInSlot = slots.getSlot(slotIndex);
         Queue<String> courseQueue = new LinkedList<>(coursesInSlot); 
-        Map<String, List<String>> seatingArrangement = new HashMap<>();
+        //Map<String, List<String>> seatingArrangement = new HashMap<>();
         
         // Initialize room assignments with empty lists
         for (Room room : rooms) {
@@ -424,7 +472,7 @@ public class StudentData {
                 }
             }
 
-            //System.out.println("Room: " + room.getLocationId() + " Students: " + assignedStudents);
+            System.out.println("Room: " + room.getLocationId() + " Students: " + assignedStudents);
 
             if(!assignedStudents.isEmpty()) {
                 roomCount++;
@@ -434,7 +482,73 @@ public class StudentData {
             seatingArrangement.put(room.getLocationId(), assignedStudents);
         }
 
-        System.out.println("Rooms Used: " + roomCount);
+        //System.out.println("Rooms Used: " + roomCount);
+    }
+
+    public static void assignInvigilators(Map<String, List<String>> seatingArrangement, List<Staff> invigilators, List<InvigilatorRoom> invigilatorRooms) {
+        Map<String, Set<String>> courseInRoom = new HashMap<>();
+        
+    
+        // Iterate over the seating arrangement map
+        for (Map.Entry<String, List<String>> entry : seatingArrangement.entrySet()) {
+            String roomID = entry.getKey(); // Fetch the room ID (key)
+            List<String> studentsInRoom = entry.getValue(); // Get the list of students (value)
+            Set<String> uniqueStudents = new HashSet<>();
+    
+            // Append each unique student name to the set
+            for (String student : studentsInRoom) {
+
+                int index = student.indexOf("(");
+                uniqueStudents.add(student.substring(index + 1, index + 4));
+            }
+
+            courseInRoom.put(roomID, uniqueStudents);
+        }
+
+        for(Map.Entry<String, Set<String>> entry : courseInRoom.entrySet()){
+            String roomId = entry.getKey();
+            String[] course = entry.getValue().toArray(new String[0]);
+            String invigilatorAssigned = "NA";
+
+            if(entry.getValue().size() == 1){
+
+                for(Staff invigilator: invigilators){
+                    if(invigilator.getStaffDept().equals(course[0]) && invigilator.getUsedLastSlot().equals("No")){
+                        invigilatorAssigned = invigilator.getStaffName();
+                        invigilator.setUsedLastSlot("Yes_n");
+                        invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
+                        break;
+                    }
+                }
+                invigilatorRooms.add(new InvigilatorRoom(roomId, invigilatorAssigned, "NA"));
+            }
+            else if(entry.getValue().size() > 1){
+                int index = 0;
+
+                while(index < course.length){
+                    for(Staff invigilator: invigilators){
+                        if(invigilator.getStaffDept().equals(course[index]) && invigilator.getUsedLastSlot().equals("No") && invigilator.getTotalSlots()>0){
+                            invigilatorAssigned = invigilator.getStaffName();
+                            invigilator.setUsedLastSlot("Yes_n");
+                            invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
+                            break;
+                        }
+                    }
+
+                    if(invigilatorAssigned.equals("NA")){
+                        index++;
+                    }
+                    else{
+                        break;
+                    }
+                }
+                invigilatorRooms.add(new InvigilatorRoom(roomId, invigilatorAssigned, "NA"));
+            }
+        }
+
+        for(InvigilatorRoom room: invigilatorRooms){
+            System.out.println("Room: "+room.getLocationId()+" ---> "+room.getInvigilator());
+        }
     }
 
     public static void main(String[] args) {
@@ -517,10 +631,11 @@ public class StudentData {
         //System.out.println("LeftOverCourses: " + leftoverCourses);
 
 
-        for (int i = 0; i < slots.getNumberOfSlots(); i++) {
+        //for (int i = 0; i < slots.getNumberOfSlots(); i++) {
             List<Room> rooms = new ArrayList<>();
-            generateSeatingArrangement(slots, studentCoursesMap, i, rooms);
-        }
+            Map<String, List<String>> seatingArrangement = new HashMap<>();
+            generateSeatingArrangement(slots, studentCoursesMap, 13, rooms, seatingArrangement);
+        //}
 
         List<Staff> invigilators = new ArrayList<>();
         try (BufferedReader brrr = new BufferedReader(new FileReader("Invigilators.txt"))) {
@@ -535,8 +650,9 @@ public class StudentData {
                 String staffDept = details[1];
                 String staffName = details[2];
                 int staffSlots = Integer.parseInt(details[3]);
+                String UsedLastSlot = "No"; 
 
-                invigilators.add(new Staff(staffID, staffName, staffDept, staffSlots));
+                invigilators.add(new Staff(staffID, staffName, staffDept, staffSlots, UsedLastSlot));
             }
 
             brrr.close();
@@ -544,12 +660,26 @@ public class StudentData {
             e.printStackTrace();
         }
 
-        int slotSum = 0;
-        for(Staff staff : invigilators) {
-            slotSum += staff.getTotalSlots();
+
+        List<InvigilatorRoom> invigilatorRooms = new ArrayList<>();
+        assignInvigilators(seatingArrangement, invigilators, invigilatorRooms);
+
+        /*Set<String> uniqueCourseCodes = new HashSet<>();
+
+        for (CourseInfo courseInfo : courseInfoList) {
+            uniqueCourseCodes.add(courseInfo.getCourseCode().substring(0, 3));
         }
 
-        System.out.println("Total Staff Slots: " + slotSum);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("course_list.txt"))) {
+            for (String code : uniqueCourseCodes) {
+                writer.write(code);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+
+        
     }
 
     // Merge Sort
