@@ -185,14 +185,16 @@ public class StudentData {
         String staffName;
         String staffDept;
         int totalSlots;
-        String UsedLastSlot;
+        String usedLastSlot;
+        String[] notToInvigilate;
 
-        public Staff(String staffID, String staffName, String staffDept, int totalSlots, String UsedLastSlot) {
+        public Staff(String staffID, String staffName, String staffDept, int totalSlots, String usedLastSlot, String[] notToInvigilate) {
             this.staffID = staffID;
             this.staffName = staffName;
             this.staffDept = staffDept;
             this.totalSlots = totalSlots;
-            this.UsedLastSlot = UsedLastSlot;
+            this.usedLastSlot = usedLastSlot;
+            this.notToInvigilate = notToInvigilate;
         }
 
         public String getStaffID() {
@@ -211,16 +213,25 @@ public class StudentData {
             return totalSlots;
         }
 
-        public String getUsedLastSlot(){
-            return UsedLastSlot;
+        public String getusedLastSlot(){
+            return usedLastSlot;
         }
 
-        public void setUsedLastSlot(String UsedLastSlot){
-            this.UsedLastSlot = UsedLastSlot;
+        public void setusedLastSlot(String usedLastSlot){
+            this.usedLastSlot = usedLastSlot;
         }
 
         public void setTotalSlots(int totalSlots) {
             this.totalSlots = totalSlots;
+        }
+
+        public boolean isNotToInvigilate(String courseCode) {
+            for (String course : notToInvigilate) {
+                if (course.equals(courseCode)) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
@@ -485,21 +496,68 @@ public class StudentData {
         //System.out.println("Rooms Used: " + roomCount);
     }
 
+    public static String getDepartment(String course){
+
+        if(course.equals("BBA")) return "SOM";
+        if(course.equals("BDC")) return "SOD";
+        if(course.equals("MAT")) return "MAT";
+        if(course.equals("CHE")) return "CHE";
+        if(course.equals("FRL")) return "French";
+        if(course.equals("LAW")) return "SOL";
+        if(course.equals("BBB")) return "SOM";
+        if(course.equals("BBE")) return "SOM";
+        if(course.equals("BDF")) return "SOD";
+        if(course.equals("MBA")) return "SOM";
+        if(course.equals("BBL")) return "SOL";
+        if(course.equals("CSA")) return "SOIS";
+        if(course.equals("CSE")) return "SOCSE";
+        if(course.equals("BSE")) return "SOM";
+        if(course.equals("BSM")) return "SOD";
+        if(course.equals("PHY")) return "PHY";
+        if(course.equals("COM")) return "SOC";
+        if(course.equals("EEE")) return "EEE";
+        if(course.equals("ECE")) return "ECE";
+        if(course.equals("SOC")) return "SOC";
+        if(course.equals("BCH")) return "SOC";
+        if(course.equals("MEC")) return "MEC";
+        if(course.equals("BCL")) return "SOL";
+        if(course.equals("BAJ")) return "SOMS";
+        if(course.equals("BAL")) return "SOL";
+        if(course.equals("CIV")) return "CIV";
+        if(course.equals("DES")) return "SOD";
+        if(course.equals("MAH")) return "SOC";
+        if(course.equals("BAV")) return "SOM";
+        if(course.equals("KAN")) return "Kannada";
+        if(course.equals("MGT")) return "SOM";
+        if(course.equals("PET")) return "PET";
+        if(course.equals("ENG")) return "English";
+
+        return course;
+    }
+
     public static void assignInvigilators(Map<String, List<String>> seatingArrangement, List<Staff> invigilators, List<InvigilatorRoom> invigilatorRooms) {
         Map<String, Set<String>> courseInRoom = new HashMap<>();
+
+        for(Staff invigilator : invigilators){
+            if(invigilator.getusedLastSlot().equals("Yes")) invigilator.setusedLastSlot("No");
+        }
+
+        for(Staff invigilator : invigilators){
+            if(invigilator.getusedLastSlot().equals("Yes_n")) invigilator.setusedLastSlot("Yes");
+        }
         
     
-        // Iterate over the seating arrangement map
         for (Map.Entry<String, List<String>> entry : seatingArrangement.entrySet()) {
-            String roomID = entry.getKey(); // Fetch the room ID (key)
-            List<String> studentsInRoom = entry.getValue(); // Get the list of students (value)
+            String roomID = entry.getKey();
+            List<String> studentsInRoom = entry.getValue();
             Set<String> uniqueStudents = new HashSet<>();
     
             // Append each unique student name to the set
             for (String student : studentsInRoom) {
 
                 int index = student.indexOf("(");
-                uniqueStudents.add(student.substring(index + 1, index + 4));
+                int indexEnd = student.indexOf(")");
+                uniqueStudents.add(student.substring(index + 1, indexEnd));
             }
 
             courseInRoom.put(roomID, uniqueStudents);
@@ -513,9 +571,9 @@ public class StudentData {
             if(entry.getValue().size() == 1){
 
                 for(Staff invigilator: invigilators){
-                    if(invigilator.getStaffDept().equals(course[0]) && invigilator.getUsedLastSlot().equals("No")){
+                    if(invigilator.getStaffDept().equals(getDepartment(course[0].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.isNotToInvigilate(course[0])){
                         invigilatorAssigned = invigilator.getStaffName();
-                        invigilator.setUsedLastSlot("Yes_n");
+                        invigilator.setusedLastSlot("Yes_n");
                         invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
                         break;
                     }
@@ -527,9 +585,9 @@ public class StudentData {
 
                 while(index < course.length){
                     for(Staff invigilator: invigilators){
-                        if(invigilator.getStaffDept().equals(course[index]) && invigilator.getUsedLastSlot().equals("No") && invigilator.getTotalSlots()>0){
+                        if(invigilator.getStaffDept().equals(getDepartment(course[index].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.isNotToInvigilate(course[index])){
                             invigilatorAssigned = invigilator.getStaffName();
-                            invigilator.setUsedLastSlot("Yes_n");
+                            invigilator.setusedLastSlot("Yes_n");
                             invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
                             break;
                         }
@@ -543,6 +601,19 @@ public class StudentData {
                     }
                 }
                 invigilatorRooms.add(new InvigilatorRoom(roomId, invigilatorAssigned, "NA"));
+            }
+        }
+
+        for(InvigilatorRoom invigilatorRoom : invigilatorRooms){
+            if(invigilatorRoom.getInvigilator().equals("NA")){
+                for(Staff invigilator: invigilators){
+                    if(invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0){
+                        invigilatorRoom.setInvigilator(invigilator.getStaffName());
+                        invigilator.setusedLastSlot("Yes_n");
+                        invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
+                        break;
+                    }
+                }
             }
         }
 
@@ -650,9 +721,13 @@ public class StudentData {
                 String staffDept = details[1];
                 String staffName = details[2];
                 int staffSlots = Integer.parseInt(details[3]);
-                String UsedLastSlot = "No"; 
+                String[] notToInvigilate = new String[0];
+                String usedLastSlot = "No";
+                if (details.length > 4) {
+                    notToInvigilate = details[4].split(",");
+                }
 
-                invigilators.add(new Staff(staffID, staffName, staffDept, staffSlots, UsedLastSlot));
+                invigilators.add(new Staff(staffID, staffName, staffDept, staffSlots, usedLastSlot, notToInvigilate));
             }
 
             brrr.close();
@@ -662,6 +737,12 @@ public class StudentData {
 
 
         List<InvigilatorRoom> invigilatorRooms = new ArrayList<>();
+        assignInvigilators(seatingArrangement, invigilators, invigilatorRooms);
+        System.out.println("Invigilators assigned!");
+        invigilatorRooms = new ArrayList<>();
+        assignInvigilators(seatingArrangement, invigilators, invigilatorRooms);
+        System.out.println("Invigilators assigned!");
+        invigilatorRooms = new ArrayList<>();
         assignInvigilators(seatingArrangement, invigilators, invigilatorRooms);
 
         /*Set<String> uniqueCourseCodes = new HashSet<>();
