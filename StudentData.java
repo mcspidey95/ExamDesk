@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -312,8 +313,10 @@ public class StudentData {
             boolean conflict = true;
             while (conflict) {
                 conflict = false;
+                Boolean fixedBreak = false;
                 Set<String> combinedSlotCourses = new HashSet<>();
                 Set<String> currentSlotCourses = new HashSet<>();
+                Set<String> directSlotCourses = new HashSet<>();
 
                 int modIndex = (slotIndex-1)%3;
                 int mainslotIndex = slotIndex - 1;
@@ -331,6 +334,19 @@ public class StudentData {
                 else if(modIndex == 2){
                     altslotIndex1 = slotIndex - 2;
                     altslotIndex2 = slotIndex - 3;
+                }
+                
+                if(fixedBreak){
+                    if(modIndex == 0 && altslotIndex1 < slots.getNumberOfSlots()){
+                        directSlotCourses.addAll(slots.getSlot(altslotIndex1));
+                    }
+                    else if(modIndex == 1 && altslotIndex2 < slots.getNumberOfSlots()){
+                        directSlotCourses.addAll(slots.getSlot(altslotIndex1));
+                        directSlotCourses.addAll(slots.getSlot(altslotIndex2));
+                    }
+                    else if(modIndex == 2){
+                        directSlotCourses.addAll(slots.getSlot(altslotIndex1));
+                    }
                 }
 
                 combinedSlotCourses.addAll(slots.getSlot(mainslotIndex)); // Current slot
@@ -355,7 +371,7 @@ public class StudentData {
                 }
 
                 for (String matchedCourse : matchedCourses) {
-                    if (currentSlotCourses.contains(matchedCourse) || totalStudentCount > 6984) {
+                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > 6984) {
                         // Conflict found, increment the slot index and try again
                         slotIndex++;
                         if (slotIndex > slots.getNumberOfSlots()) {
@@ -384,6 +400,14 @@ public class StudentData {
                 System.out.println("Matched Courses: " + matchedCourses);
                 System.out.println("clashedCourses: "+ clashedCourses);
                 System.out.println();*/
+                
+                /*if(initialCourse.equals("CSE3128")){
+                    System.out.println(currentSlotCourses);
+                    System.out.println(combinedSlotCourses);
+                }
+                if(initialCourse.equals("CSE3005") || initialCourse.equals("CSE3128")){
+                    System.out.println(initialCourse);
+                }*/
             }
             // Add the initial course to the current slot once there are no conflicts
             slots.addCourseToSlot(slotIndex - 1, initialCourse);
@@ -627,6 +651,7 @@ public class StudentData {
         List<StudentRecord> studentRecords = new ArrayList<>();
         Map<String, CourseInfo> courseInfoMap = new HashMap<>();
         Map<String, StudentCourses> studentCoursesMap = new HashMap<>();
+        Map<List<String>, StudentCourses> programMap = new HashMap<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -672,6 +697,15 @@ public class StudentData {
             String rollNumber = record.rollNumber;
             studentCoursesMap.putIfAbsent(rollNumber, new StudentCourses(rollNumber));
             studentCoursesMap.get(rollNumber).addCourse(courseCode);
+
+            // Update program map
+            String programCode = record.programCode;
+            String semNo = record.semNo;
+            programMap.putIfAbsent(Arrays.asList(programCode, semNo), new StudentCourses(programCode));
+            //only add course if unique
+            if(!programMap.get(Arrays.asList(programCode, semNo)).getCourses().contains(courseCode)){
+                programMap.get(Arrays.asList(programCode, semNo)).addCourse(courseCode);
+            }
         }
     
 
@@ -690,6 +724,14 @@ public class StudentData {
             System.out.println(studentCourses);
         }*/
 
+        //Print program map info
+        /*System.out.println("\nProgram Map:");
+        for (Map.Entry<List<String>, StudentCourses> entry : programMap.entrySet()) {
+            if(entry.getKey().get(0).equals("CAI") && entry.getKey().get(1).equals("5")){
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+        }*/
+
         System.out.println("Other Objects Created!");
 
         List<CourseInfo> leftoverCourses = new ArrayList<>(courseInfoList);
@@ -700,6 +742,32 @@ public class StudentData {
         System.out.println("Slots created: " + slots.getNumberOfSlots());
         System.out.println("No. of days: " + ((slots.getNumberOfSlots() + 2) / 3));
         //System.out.println("LeftOverCourses: " + leftoverCourses);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Exam_Timetable.txt"))) {
+          //for each key in programMap get the courses
+
+            for(Map.Entry<List<String>, StudentCourses> entry : programMap.entrySet()){
+                List<String> course = entry.getValue().getCourses();
+
+                writer.write("Program: " + entry.getKey().get(0) + " Semester: " + entry.getKey().get(1) + "\n");
+                writer.newLine();
+                for(int i = 0; i < slots.getNumberOfSlots(); i++){
+                    for(String mainCourse : course){
+                        if(slots.getSlot(i).contains(mainCourse)){
+                            writer.write("Day: " + ((i/3)+1) + " Slot: " + (i%3+1) + " Course: " + mainCourse + "\n");
+                        }
+                    }
+
+                }
+                writer.newLine();
+                writer.newLine();
+            }
+            
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
         //for (int i = 0; i < slots.getNumberOfSlots(); i++) {
