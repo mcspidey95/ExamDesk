@@ -124,7 +124,7 @@ public class StudentData {
 
         public String getCourseCode() { return courseCode; }
 
-        public String getCourseTitle() { return courseCode; }
+        public String getCourseTitle() { return courseTitle; }
 
         public int getProposedDay() { return proposedDay; }
 
@@ -417,7 +417,7 @@ public class StudentData {
                 }
 
                 for (String matchedCourse : matchedCourses) {
-                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > 3600) { //6984
+                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > 3600) { //6912
                         // Conflict found, increment the slot index and try again
                         slotIndex++;
                         if (slotIndex > slots.getNumberOfSlots()) {
@@ -774,7 +774,7 @@ public class StudentData {
         courseInfoList = mergeSort(courseInfoList, Comparator.comparing(CourseInfo::getProposedDay));
     
         // Print sorted course info
-        /*System.out.println("Course Info (sorted by student count):");
+        System.out.println("Course Info (sorted by student count):");
         for (CourseInfo courseInfo : courseInfoList) {
             System.out.println(courseInfo);
         }
@@ -806,6 +806,7 @@ public class StudentData {
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("Exam_Timetable.tsv"))) {
           //for each key in programMap get the courses
+          writer.write("Day" + "\t" + "Slot" + "\t" +  "CourseCode" + "\t" +  "CourseTitle" + "\t" +  "Program" + "\t" +  "Semester" + "\t" +  "School" + "\n");
 
             for(Map.Entry<List<String>, StudentCourses> entry : programMap.entrySet()){
                 List<String> course = entry.getValue().getCourses();
