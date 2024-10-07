@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -185,14 +186,16 @@ public class StudentData {
         String staffName;
         String staffDept;
         int totalSlots;
-        String UsedLastSlot;
+        String usedLastSlot;
+        String[] notToInvigilate;
 
-        public Staff(String staffID, String staffName, String staffDept, int totalSlots, String UsedLastSlot) {
+        public Staff(String staffID, String staffName, String staffDept, int totalSlots, String usedLastSlot, String[] notToInvigilate) {
             this.staffID = staffID;
             this.staffName = staffName;
             this.staffDept = staffDept;
             this.totalSlots = totalSlots;
-            this.UsedLastSlot = UsedLastSlot;
+            this.usedLastSlot = usedLastSlot;
+            this.notToInvigilate = notToInvigilate;
         }
 
         public String getStaffID() {
@@ -211,16 +214,25 @@ public class StudentData {
             return totalSlots;
         }
 
-        public String getUsedLastSlot(){
-            return UsedLastSlot;
+        public String getusedLastSlot(){
+            return usedLastSlot;
         }
 
-        public void setUsedLastSlot(String UsedLastSlot){
-            this.UsedLastSlot = UsedLastSlot;
+        public void setusedLastSlot(String usedLastSlot){
+            this.usedLastSlot = usedLastSlot;
         }
 
         public void setTotalSlots(int totalSlots) {
             this.totalSlots = totalSlots;
+        }
+
+        public boolean isNotToInvigilate(String courseCode) {
+            for (String course : notToInvigilate) {
+                if (course.equals(courseCode)) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
@@ -301,8 +313,10 @@ public class StudentData {
             boolean conflict = true;
             while (conflict) {
                 conflict = false;
+                Boolean fixedBreak = false;
                 Set<String> combinedSlotCourses = new HashSet<>();
                 Set<String> currentSlotCourses = new HashSet<>();
+                Set<String> directSlotCourses = new HashSet<>();
 
                 int modIndex = (slotIndex-1)%3;
                 int mainslotIndex = slotIndex - 1;
@@ -320,6 +334,19 @@ public class StudentData {
                 else if(modIndex == 2){
                     altslotIndex1 = slotIndex - 2;
                     altslotIndex2 = slotIndex - 3;
+                }
+                
+                if(fixedBreak){
+                    if(modIndex == 0 && altslotIndex1 < slots.getNumberOfSlots()){
+                        directSlotCourses.addAll(slots.getSlot(altslotIndex1));
+                    }
+                    else if(modIndex == 1 && altslotIndex2 < slots.getNumberOfSlots()){
+                        directSlotCourses.addAll(slots.getSlot(altslotIndex1));
+                        directSlotCourses.addAll(slots.getSlot(altslotIndex2));
+                    }
+                    else if(modIndex == 2){
+                        directSlotCourses.addAll(slots.getSlot(altslotIndex1));
+                    }
                 }
 
                 combinedSlotCourses.addAll(slots.getSlot(mainslotIndex)); // Current slot
@@ -344,7 +371,7 @@ public class StudentData {
                 }
 
                 for (String matchedCourse : matchedCourses) {
-                    if (currentSlotCourses.contains(matchedCourse) || totalStudentCount > 6984) {
+                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > 6984) {
                         // Conflict found, increment the slot index and try again
                         slotIndex++;
                         if (slotIndex > slots.getNumberOfSlots()) {
@@ -373,6 +400,14 @@ public class StudentData {
                 System.out.println("Matched Courses: " + matchedCourses);
                 System.out.println("clashedCourses: "+ clashedCourses);
                 System.out.println();*/
+                
+                /*if(initialCourse.equals("CSE3128")){
+                    System.out.println(currentSlotCourses);
+                    System.out.println(combinedSlotCourses);
+                }
+                if(initialCourse.equals("CSE3005") || initialCourse.equals("CSE3128")){
+                    System.out.println(initialCourse);
+                }*/
             }
             // Add the initial course to the current slot once there are no conflicts
             slots.addCourseToSlot(slotIndex - 1, initialCourse);
@@ -485,21 +520,68 @@ public class StudentData {
         //System.out.println("Rooms Used: " + roomCount);
     }
 
+    public static String getDepartment(String course){
+
+        if(course.equals("BBA")) return "SOM";
+        if(course.equals("BDC")) return "SOD";
+        if(course.equals("MAT")) return "MAT";
+        if(course.equals("CHE")) return "CHE";
+        if(course.equals("FRL")) return "French";
+        if(course.equals("LAW")) return "SOL";
+        if(course.equals("BBB")) return "SOM";
+        if(course.equals("BBE")) return "SOM";
+        if(course.equals("BDF")) return "SOD";
+        if(course.equals("MBA")) return "SOM";
+        if(course.equals("BBL")) return "SOL";
+        if(course.equals("CSA")) return "SOIS";
+        if(course.equals("CSE")) return "SOCSE";
+        if(course.equals("BSE")) return "SOM";
+        if(course.equals("BSM")) return "SOD";
+        if(course.equals("PHY")) return "PHY";
+        if(course.equals("COM")) return "SOC";
+        if(course.equals("EEE")) return "EEE";
+        if(course.equals("ECE")) return "ECE";
+        if(course.equals("SOC")) return "SOC";
+        if(course.equals("BCH")) return "SOC";
+        if(course.equals("MEC")) return "MEC";
+        if(course.equals("BCL")) return "SOL";
+        if(course.equals("BAJ")) return "SOMS";
+        if(course.equals("BAL")) return "SOL";
+        if(course.equals("CIV")) return "CIV";
+        if(course.equals("DES")) return "SOD";
+        if(course.equals("MAH")) return "SOC";
+        if(course.equals("BAV")) return "SOM";
+        if(course.equals("KAN")) return "Kannada";
+        if(course.equals("MGT")) return "SOM";
+        if(course.equals("PET")) return "PET";
+        if(course.equals("ENG")) return "English";
+
+        return course;
+    }
+
     public static void assignInvigilators(Map<String, List<String>> seatingArrangement, List<Staff> invigilators, List<InvigilatorRoom> invigilatorRooms) {
         Map<String, Set<String>> courseInRoom = new HashMap<>();
+
+        for(Staff invigilator : invigilators){
+            if(invigilator.getusedLastSlot().equals("Yes")) invigilator.setusedLastSlot("No");
+        }
+
+        for(Staff invigilator : invigilators){
+            if(invigilator.getusedLastSlot().equals("Yes_n")) invigilator.setusedLastSlot("Yes");
+        }
         
     
-        // Iterate over the seating arrangement map
         for (Map.Entry<String, List<String>> entry : seatingArrangement.entrySet()) {
-            String roomID = entry.getKey(); // Fetch the room ID (key)
-            List<String> studentsInRoom = entry.getValue(); // Get the list of students (value)
+            String roomID = entry.getKey();
+            List<String> studentsInRoom = entry.getValue();
             Set<String> uniqueStudents = new HashSet<>();
     
             // Append each unique student name to the set
             for (String student : studentsInRoom) {
 
                 int index = student.indexOf("(");
-                uniqueStudents.add(student.substring(index + 1, index + 4));
+                int indexEnd = student.indexOf(")");
+                uniqueStudents.add(student.substring(index + 1, indexEnd));
             }
 
             courseInRoom.put(roomID, uniqueStudents);
@@ -513,9 +595,9 @@ public class StudentData {
             if(entry.getValue().size() == 1){
 
                 for(Staff invigilator: invigilators){
-                    if(invigilator.getStaffDept().equals(course[0]) && invigilator.getUsedLastSlot().equals("No")){
+                    if(invigilator.getStaffDept().equals(getDepartment(course[0].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.isNotToInvigilate(course[0])){
                         invigilatorAssigned = invigilator.getStaffName();
-                        invigilator.setUsedLastSlot("Yes_n");
+                        invigilator.setusedLastSlot("Yes_n");
                         invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
                         break;
                     }
@@ -527,9 +609,9 @@ public class StudentData {
 
                 while(index < course.length){
                     for(Staff invigilator: invigilators){
-                        if(invigilator.getStaffDept().equals(course[index]) && invigilator.getUsedLastSlot().equals("No") && invigilator.getTotalSlots()>0){
+                        if(invigilator.getStaffDept().equals(getDepartment(course[index].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.isNotToInvigilate(course[index])){
                             invigilatorAssigned = invigilator.getStaffName();
-                            invigilator.setUsedLastSlot("Yes_n");
+                            invigilator.setusedLastSlot("Yes_n");
                             invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
                             break;
                         }
@@ -546,6 +628,19 @@ public class StudentData {
             }
         }
 
+        for(InvigilatorRoom invigilatorRoom : invigilatorRooms){
+            if(invigilatorRoom.getInvigilator().equals("NA")){
+                for(Staff invigilator: invigilators){
+                    if(invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0){
+                        invigilatorRoom.setInvigilator(invigilator.getStaffName());
+                        invigilator.setusedLastSlot("Yes_n");
+                        invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
+                        break;
+                    }
+                }
+            }
+        }
+
         for(InvigilatorRoom room: invigilatorRooms){
             System.out.println("Room: "+room.getLocationId()+" ---> "+room.getInvigilator());
         }
@@ -556,6 +651,7 @@ public class StudentData {
         List<StudentRecord> studentRecords = new ArrayList<>();
         Map<String, CourseInfo> courseInfoMap = new HashMap<>();
         Map<String, StudentCourses> studentCoursesMap = new HashMap<>();
+        Map<List<String>, StudentCourses> programMap = new HashMap<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -601,6 +697,15 @@ public class StudentData {
             String rollNumber = record.rollNumber;
             studentCoursesMap.putIfAbsent(rollNumber, new StudentCourses(rollNumber));
             studentCoursesMap.get(rollNumber).addCourse(courseCode);
+
+            // Update program map
+            String programCode = record.programCode;
+            String semNo = record.semNo;
+            programMap.putIfAbsent(Arrays.asList(programCode, semNo), new StudentCourses(programCode));
+            //only add course if unique
+            if(!programMap.get(Arrays.asList(programCode, semNo)).getCourses().contains(courseCode)){
+                programMap.get(Arrays.asList(programCode, semNo)).addCourse(courseCode);
+            }
         }
     
 
@@ -619,6 +724,14 @@ public class StudentData {
             System.out.println(studentCourses);
         }*/
 
+        //Print program map info
+        /*System.out.println("\nProgram Map:");
+        for (Map.Entry<List<String>, StudentCourses> entry : programMap.entrySet()) {
+            if(entry.getKey().get(0).equals("CAI") && entry.getKey().get(1).equals("5")){
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+        }*/
+
         System.out.println("Other Objects Created!");
 
         List<CourseInfo> leftoverCourses = new ArrayList<>(courseInfoList);
@@ -629,6 +742,32 @@ public class StudentData {
         System.out.println("Slots created: " + slots.getNumberOfSlots());
         System.out.println("No. of days: " + ((slots.getNumberOfSlots() + 2) / 3));
         //System.out.println("LeftOverCourses: " + leftoverCourses);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Exam_Timetable.txt"))) {
+          //for each key in programMap get the courses
+
+            for(Map.Entry<List<String>, StudentCourses> entry : programMap.entrySet()){
+                List<String> course = entry.getValue().getCourses();
+
+                writer.write("Program: " + entry.getKey().get(0) + " Semester: " + entry.getKey().get(1) + "\n");
+                writer.newLine();
+                for(int i = 0; i < slots.getNumberOfSlots(); i++){
+                    for(String mainCourse : course){
+                        if(slots.getSlot(i).contains(mainCourse)){
+                            writer.write("Day: " + ((i/3)+1) + " Slot: " + (i%3+1) + " Course: " + mainCourse + "\n");
+                        }
+                    }
+
+                }
+                writer.newLine();
+                writer.newLine();
+            }
+            
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
         //for (int i = 0; i < slots.getNumberOfSlots(); i++) {
@@ -650,9 +789,13 @@ public class StudentData {
                 String staffDept = details[1];
                 String staffName = details[2];
                 int staffSlots = Integer.parseInt(details[3]);
-                String UsedLastSlot = "No"; 
+                String[] notToInvigilate = new String[0];
+                String usedLastSlot = "No";
+                if (details.length > 4) {
+                    notToInvigilate = details[4].split(",");
+                }
 
-                invigilators.add(new Staff(staffID, staffName, staffDept, staffSlots, UsedLastSlot));
+                invigilators.add(new Staff(staffID, staffName, staffDept, staffSlots, usedLastSlot, notToInvigilate));
             }
 
             brrr.close();
@@ -662,6 +805,12 @@ public class StudentData {
 
 
         List<InvigilatorRoom> invigilatorRooms = new ArrayList<>();
+        assignInvigilators(seatingArrangement, invigilators, invigilatorRooms);
+        System.out.println("Invigilators assigned!");
+        invigilatorRooms = new ArrayList<>();
+        assignInvigilators(seatingArrangement, invigilators, invigilatorRooms);
+        System.out.println("Invigilators assigned!");
+        invigilatorRooms = new ArrayList<>();
         assignInvigilators(seatingArrangement, invigilators, invigilatorRooms);
 
         /*Set<String> uniqueCourseCodes = new HashSet<>();
