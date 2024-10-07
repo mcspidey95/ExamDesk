@@ -16,7 +16,7 @@ import java.util.Set;
 
 public class StudentData {
 
-    static class StudentRecord {
+    /*static class StudentRecord {
         private String academicYear;
         private String school;
         private String examination;
@@ -68,22 +68,65 @@ public class StudentData {
         public String toString() {
             return academicYear + "\t" + school + "\t" + examination + "\t" + programCode + "\t" + programName + "\t" + semNo + "\t" + semRoman + "\t" + uid + "\t" + rollNumber + "\t" + studentName + "\t" + section + "\t" + courseEligibility + "\t" + courseCode + "\t" + courseTitle;
         }
+    }*/
+
+    static class StudentRecord {
+        private String school;
+        private String programName;
+        private String sem;
+        private String rollNumber;
+        private String studentName;
+        private String section;
+        private String courseCode;
+
+        public StudentRecord(String school, String programName, String sem, String rollNumber, String studentName, String section, String courseCode) {
+            this.school = school;
+            this.programName = programName;
+            this.sem = sem;
+            this.rollNumber = rollNumber;
+            this.studentName = studentName;
+            this.section = section;
+            this.courseCode = courseCode;
+        }
+
+        public String getSchool() { return school; }
+        public String getProgramName() { return programName; }
+        public String getSemNo() { return sem; }
+        public String getRollNumber() { return rollNumber; }
+        public String getStudentName() { return studentName; }
+        public String getSection() { return section; }
+        public String getCourseCode() { return courseCode; }
+
+        @Override
+        public String toString() {
+            return school + "\t" + programName + "\t" + sem + "\t" + "\t" + rollNumber + "\t" + studentName + "\t" + section + "\t" + courseCode;
+        }
     }
 
     static class CourseInfo {
+        private String school;
         private String courseCode;
         private String courseTitle;
         private int studentCount;
+        private int proposedDay;
 
-        public CourseInfo(String courseCode, String courseTitle, int studentCount) {
+        public CourseInfo(String school, String courseCode, String courseTitle, int studentCount, int proposedDay) {
+            this.school = school;
             this.courseCode = courseCode;
             this.courseTitle = courseTitle;
             this.studentCount = studentCount;
+            this.proposedDay = proposedDay;
         }
+
+        public String getSchool() { return school; }
 
         public int getStudentCount() { return studentCount; }
 
         public String getCourseCode() { return courseCode; }
+
+        public String getCourseTitle() { return courseCode; }
+
+        public int getProposedDay() { return proposedDay; }
 
         @Override
         public String toString() {
@@ -284,6 +327,9 @@ public class StudentData {
     
         for (CourseInfo courseInfo : leftoverCourses) {
             slotIndex = 1;
+            if(courseInfo.getProposedDay() != 999){
+                slotIndex = (courseInfo.getProposedDay()*3)-2;
+            }
             String initialCourse = courseInfo.courseCode;
 
             if(blacklist.contains(initialCourse)){
@@ -371,7 +417,7 @@ public class StudentData {
                 }
 
                 for (String matchedCourse : matchedCourses) {
-                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > 6984) {
+                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > 3600) { //6984
                         // Conflict found, increment the slot index and try again
                         slotIndex++;
                         if (slotIndex > slots.getNumberOfSlots()) {
@@ -647,7 +693,7 @@ public class StudentData {
     }
 
     public static void main(String[] args) {
-        String filePath = "ET Data1.txt";
+        String filePath = "StudentRegistration.txt";
         List<StudentRecord> studentRecords = new ArrayList<>();
         Map<String, CourseInfo> courseInfoMap = new HashMap<>();
         Map<String, StudentCourses> studentCoursesMap = new HashMap<>();
@@ -658,22 +704,35 @@ public class StudentData {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split("\t");
                 StudentRecord record = new StudentRecord(
-                        data[0], // academicYear
-                        data[1], // school
-                        data[2], // examination
-                        data[3], // programCode
-                        data[4], // programName
-                        data[5], // semNo
-                        data[6], // semRoman
-                        data[7], // uid
-                        data[8], // rollNumber
-                        data[9], // studentName
-                        data[10], // courseEligibility
-                        data[11], // section
-                        data[12], // courseCode
-                        data[13]  // courseTitle
+                        data[3], // school
+                        data[5], // programName
+                        data[6], // sem
+                        data[1], // rollNumber
+                        data[2], // studentName
+                        data[7], // section
+                        data[8] // courseCode
                 );
                 studentRecords.add(record);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader("FinalCourseData.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] details = line.split("\t");
+
+                String school = details[0];
+                String courseCode = details[3];
+                String courseTitle = details[4];
+                int proposedDay = 999;
+                if (details.length > 5) {
+                    proposedDay = Integer.parseInt(details[5]);
+                }
+
+                courseInfoMap.putIfAbsent(courseCode, new CourseInfo(school, courseCode, courseTitle, 0, proposedDay));
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -687,11 +746,12 @@ public class StudentData {
 
         for (StudentRecord record : studentRecords) {
             String courseCode = record.courseCode;
-            String courseTitle = record.courseTitle;
-    
-            // Update course info             
-            courseInfoMap.putIfAbsent(courseCode, new CourseInfo(courseCode, courseTitle, 0));
-            courseInfoMap.get(courseCode).studentCount++;
+
+            // Update course info       
+            if(courseInfoMap.get(courseCode) != null)
+            {
+                courseInfoMap.get(courseCode).studentCount++;
+            }      
     
             // Update student courses info
             String rollNumber = record.rollNumber;
@@ -699,8 +759,8 @@ public class StudentData {
             studentCoursesMap.get(rollNumber).addCourse(courseCode);
 
             // Update program map
-            String programCode = record.programCode;
-            String semNo = record.semNo;
+            String programCode = record.programName;
+            String semNo = record.sem;
             programMap.putIfAbsent(Arrays.asList(programCode, semNo), new StudentCourses(programCode));
             //only add course if unique
             if(!programMap.get(Arrays.asList(programCode, semNo)).getCourses().contains(courseCode)){
@@ -711,6 +771,7 @@ public class StudentData {
 
         List<CourseInfo> courseInfoList = new ArrayList<>(courseInfoMap.values());
         courseInfoList = mergeSort(courseInfoList, Comparator.comparing(CourseInfo::getStudentCount).reversed());
+        courseInfoList = mergeSort(courseInfoList, Comparator.comparing(CourseInfo::getProposedDay));
     
         // Print sorted course info
         /*System.out.println("Course Info (sorted by student count):");
@@ -735,7 +796,7 @@ public class StudentData {
         System.out.println("Other Objects Created!");
 
         List<CourseInfo> leftoverCourses = new ArrayList<>(courseInfoList);
-        Slots slots = new Slots(3);
+        Slots slots = new Slots(13);
 
         assignCoursesToSlots(slots, studentCoursesMap, leftoverCourses, courseInfoList);
         System.out.println("Slots after assigning courses: " + slots);
@@ -743,24 +804,20 @@ public class StudentData {
         System.out.println("No. of days: " + ((slots.getNumberOfSlots() + 2) / 3));
         //System.out.println("LeftOverCourses: " + leftoverCourses);
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Exam_Timetable.txt"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Exam_Timetable.tsv"))) {
           //for each key in programMap get the courses
 
             for(Map.Entry<List<String>, StudentCourses> entry : programMap.entrySet()){
                 List<String> course = entry.getValue().getCourses();
 
-                writer.write("Program: " + entry.getKey().get(0) + " Semester: " + entry.getKey().get(1) + "\n");
-                writer.newLine();
                 for(int i = 0; i < slots.getNumberOfSlots(); i++){
                     for(String mainCourse : course){
                         if(slots.getSlot(i).contains(mainCourse)){
-                            writer.write("Day: " + ((i/3)+1) + " Slot: " + (i%3+1) + " Course: " + mainCourse + "\n");
+                            writer.write("Day: " + ((i/3)+1) + "\t" + "Slot: " + (i%3+1) + "\t" + "CourseCode: " + mainCourse + "\t" + "CourseTitle: " + courseInfoMap.get(mainCourse).getCourseTitle() + "\t" + "Program: " + entry.getKey().get(0) + "\t" + "Semester: " + entry.getKey().get(1) + "\t" + "School: " + courseInfoMap.get(mainCourse).school + "\n");
                         }
                     }
 
                 }
-                writer.newLine();
-                writer.newLine();
             }
             
 
@@ -773,7 +830,7 @@ public class StudentData {
         //for (int i = 0; i < slots.getNumberOfSlots(); i++) {
             List<Room> rooms = new ArrayList<>();
             Map<String, List<String>> seatingArrangement = new HashMap<>();
-            generateSeatingArrangement(slots, studentCoursesMap, 13, rooms, seatingArrangement);
+            //generateSeatingArrangement(slots, studentCoursesMap, 13, rooms, seatingArrangement);
         //}
 
         List<Staff> invigilators = new ArrayList<>();
@@ -805,7 +862,7 @@ public class StudentData {
 
 
         List<InvigilatorRoom> invigilatorRooms = new ArrayList<>();
-        assignInvigilators(seatingArrangement, invigilators, invigilatorRooms);
+        /*assignInvigilators(seatingArrangement, invigilators, invigilatorRooms);
         System.out.println("Invigilators assigned!");
         invigilatorRooms = new ArrayList<>();
         assignInvigilators(seatingArrangement, invigilators, invigilatorRooms);
