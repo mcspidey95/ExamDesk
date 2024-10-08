@@ -417,7 +417,7 @@ public class StudentData {
                 }
 
                 for (String matchedCourse : matchedCourses) {
-                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > 3600) { //6912
+                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > 3780) { //6912
                         // Conflict found, increment the slot index and try again
                         slotIndex++;
                         if (slotIndex > slots.getNumberOfSlots()) {
@@ -774,7 +774,7 @@ public class StudentData {
         courseInfoList = mergeSort(courseInfoList, Comparator.comparing(CourseInfo::getProposedDay));
     
         // Print sorted course info
-        System.out.println("Course Info (sorted by student count):");
+        /*System.out.println("Course Info (sorted by student count):");
         for (CourseInfo courseInfo : courseInfoList) {
             System.out.println(courseInfo);
         }
@@ -814,7 +814,8 @@ public class StudentData {
                 for(int i = 0; i < slots.getNumberOfSlots(); i++){
                     for(String mainCourse : course){
                         if(slots.getSlot(i).contains(mainCourse)){
-                            writer.write("Day: " + ((i/3)+1) + "\t" + "Slot: " + (i%3+1) + "\t" + "CourseCode: " + mainCourse + "\t" + "CourseTitle: " + courseInfoMap.get(mainCourse).getCourseTitle() + "\t" + "Program: " + entry.getKey().get(0) + "\t" + "Semester: " + entry.getKey().get(1) + "\t" + "School: " + courseInfoMap.get(mainCourse).school + "\n");
+                            //writer.write("Day: " + ((i/3)+1) + "\t" + "Slot: " + (i%3+1) + "\t" + "CourseCode: " + mainCourse + "\t" + "CourseTitle: " + courseInfoMap.get(mainCourse).getCourseTitle() + "\t" + "Program: " + entry.getKey().get(0) + "\t" + "Semester: " + entry.getKey().get(1) + "\t" + "School: " + courseInfoMap.get(mainCourse).school + "\n");
+                            writer.write(((i/3)+1) + "\t" + (i%3+1) + "\t" + mainCourse + "\t" + courseInfoMap.get(mainCourse).getCourseTitle() + "\t" + entry.getKey().get(0) + "\t" + entry.getKey().get(1) + "\t" + courseInfoMap.get(mainCourse).school + "\n");
                         }
                     }
 
