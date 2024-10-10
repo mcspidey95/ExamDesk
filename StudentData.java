@@ -829,11 +829,11 @@ public class StudentData {
         }
 
 
-        //for (int i = 0; i < slots.getNumberOfSlots(); i++) {
+        for (int i = 0; i < slots.getNumberOfSlots(); i++) {
             List<Room> rooms = new ArrayList<>();
             Map<String, List<String>> seatingArrangement = new HashMap<>();
-            //generateSeatingArrangement(slots, studentCoursesMap, 13, rooms, seatingArrangement);
-        //}
+            generateSeatingArrangement(slots, studentCoursesMap, i, rooms, seatingArrangement);
+        }
 
         List<Staff> invigilators = new ArrayList<>();
         try (BufferedReader brrr = new BufferedReader(new FileReader("Invigilators.txt"))) {
