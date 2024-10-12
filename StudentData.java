@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -417,7 +418,7 @@ public class StudentData {
                 }
 
                 for (String matchedCourse : matchedCourses) {
-                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > 3780) { //6912
+                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > 6912) { //6912
                         // Conflict found, increment the slot index and try again
                         slotIndex++;
                         if (slotIndex > slots.getNumberOfSlots()) {
@@ -491,7 +492,7 @@ public class StudentData {
             seatingArrangement.put(room.getLocationId(), new ArrayList<>());
         }
 
-        Map<String, Queue<String>> courseStudentMap = new HashMap<>();
+        Map<String, Queue<String>> courseStudentMap = new LinkedHashMap<>();
         for (String course : coursesInSlot) {
             Queue<String> studentsInCourse = new LinkedList<>();
             for (Map.Entry<String, StudentCourses> entry : studentCoursesMap.entrySet()) {
@@ -695,9 +696,9 @@ public class StudentData {
     public static void main(String[] args) {
         String filePath = "StudentRegistration.txt";
         List<StudentRecord> studentRecords = new ArrayList<>();
-        Map<String, CourseInfo> courseInfoMap = new HashMap<>();
-        Map<String, StudentCourses> studentCoursesMap = new HashMap<>();
-        Map<List<String>, StudentCourses> programMap = new HashMap<>();
+        Map<String, CourseInfo> courseInfoMap = new LinkedHashMap<>();
+        Map<String, StudentCourses> studentCoursesMap = new LinkedHashMap<>();
+        Map<List<String>, StudentCourses> programMap = new LinkedHashMap<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -754,7 +755,7 @@ public class StudentData {
             }      
     
             // Update student courses info
-            String rollNumber = record.rollNumber;
+            String rollNumber = record.rollNumber + "/" + record.studentName;
             studentCoursesMap.putIfAbsent(rollNumber, new StudentCourses(rollNumber));
             studentCoursesMap.get(rollNumber).addCourse(courseCode);
 
@@ -828,12 +829,59 @@ public class StudentData {
             e.printStackTrace();
         }
 
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Seating_Arrangement.tsv"))) {
 
-        for (int i = 0; i < slots.getNumberOfSlots(); i++) {
-            List<Room> rooms = new ArrayList<>();
-            Map<String, List<String>> seatingArrangement = new HashMap<>();
-            generateSeatingArrangement(slots, studentCoursesMap, i, rooms, seatingArrangement);
+            // date, slot, roomNo, rollNo, Name, SeatNo, CourseCode, CourseName
+            writer.write("Day" + "\t" + "Slot" + "\t" +  "RoomNo" + "\t" +  "Student RollNo" + "\t" +  "Student Name" + "\t" +  "SeatNo" + "\t" +  "CourseCode" +  "\t" +  "CourseName" + "\t" + "\n");
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+
+        //for (int i = 0; i < slots.getNumberOfSlots(); i++) {
+            int i = 10;
+            List<Room> rooms = new ArrayList<>();
+            Map<String, List<String>> seatingArrangement = new LinkedHashMap<>();
+            generateSeatingArrangement(slots, studentCoursesMap, i, rooms, seatingArrangement);
+            //mergeSort(seatingArrangement, Comparator.comparing(entry -> entry.));
+
+            // Print the seating arrangement
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter("Seating_Arrangement.tsv", true))) {
+                int[] seatRange = {1,3,5,6,8,10,11,13,15,16,18,20,21,23,25,26,28,20,31,33,35,36,38,40,41,43,45,46,48,50,51,53,55,56,58,60,61,63,65,66,68,70};
+                
+                for (Map.Entry<String, List<String>> entry : seatingArrangement.entrySet()) {
+                    String roomNo = entry.getKey();
+                    List<String> students = entry.getValue();
+                    int seatIndex = 0;
+
+                    for (String student : students) {
+                        String rollNo = student.substring(0, student.indexOf("/"));
+                        String name = student.substring(student.indexOf("/") + 1, student.indexOf("("));
+                        String courseCode = student.substring(student.indexOf("(") + 1, student.indexOf(")"));
+                        String seatNo = Integer.toString(seatRange[seatIndex]);
+                        seatIndex++;
+
+                        for (String course : courseInfoMap.keySet()) {
+                            if (course.equals(courseCode)) {
+                                String courseName = courseInfoMap.get(courseCode).getCourseTitle();
+
+                                writer.write(((i/3)+1) + "\t" + (i%3+1) + "\t" + roomNo + "\t" + rollNo + "\t" + name + "\t" + seatNo + "\t" + courseCode + "\t" + courseName + "\n");
+                            }
+                        }
+                    }
+                    
+                }
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            
+        //} 
+      
+      
+            
 
         List<Staff> invigilators = new ArrayList<>();
         try (BufferedReader brrr = new BufferedReader(new FileReader("Invigilators.txt"))) {
@@ -926,5 +974,4 @@ public class StudentData {
 
         return result;
     }
-
 }
