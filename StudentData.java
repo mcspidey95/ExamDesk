@@ -554,7 +554,7 @@ public class StudentData {
                 }
             }
 
-            System.out.println("Room: " + room.getLocationId() + " Students: " + assignedStudents);
+            //System.out.println("Room: " + room.getLocationId() + " Students: " + assignedStudents);
 
             if(!assignedStudents.isEmpty()) {
                 roomCount++;
@@ -832,19 +832,17 @@ public class StudentData {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("Seating_Arrangement.tsv"))) {
 
             // date, slot, roomNo, rollNo, Name, SeatNo, CourseCode, CourseName
-            writer.write("Day" + "\t" + "Slot" + "\t" +  "RoomNo" + "\t" +  "Student RollNo" + "\t" +  "Student Name" + "\t" +  "SeatNo" + "\t" +  "CourseCode" +  "\t" +  "CourseName" + "\t" + "\n");
+            writer.write("Day" + "\t" + "Slot" + "\t" +  "RoomNo" + "\t" +  "Student RollNo" + "\t" +  "Student Name" + "\t" +  "SeatNo" + "\t" +  "CourseCode" +  "\t" +  "CourseName" + "\n");
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
 
-        //for (int i = 0; i < slots.getNumberOfSlots(); i++) {
-            int i = 10;
+        for (int i = 0; i < slots.getNumberOfSlots(); i++) {
             List<Room> rooms = new ArrayList<>();
             Map<String, List<String>> seatingArrangement = new LinkedHashMap<>();
             generateSeatingArrangement(slots, studentCoursesMap, i, rooms, seatingArrangement);
-            //mergeSort(seatingArrangement, Comparator.comparing(entry -> entry.));
 
             // Print the seating arrangement
             try (BufferedWriter writer = new BufferedWriter(new FileWriter("Seating_Arrangement.tsv", true))) {
@@ -878,7 +876,7 @@ public class StudentData {
             }
 
             
-        //} 
+        } 
       
       
             
