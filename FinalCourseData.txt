@@ -438,7 +438,7 @@ SOIS	BCV	2022	CSA2008	Essentials of Cloud Computing
 SOIS	BCV	2022	BBA2088	Open Elective	
 SOIS	BSD	2022	CSA3002	Machine Learning Algorithms	
 SOIS	BSD	2022	CSA3004	Big Data Analytics	
-SOIS	BSD	2022	CSA3014	Natural Language Processing 	1
+SOIS	BSD	2022	CSA3014	Natural Language Processing	1
 SOIS	BSD	2022	CSA2008	Essentials of Cloud Computing	
 SOIS	BSD	2022	CSA3074	Reinforcment Learning	4
 SOIS	BSD	2022	BBA2088	Open Elective	

@@ -9,11 +9,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 
 public class StudentData {
 
@@ -462,7 +464,6 @@ public class StudentData {
     }
 
     public static void generateSeatingArrangement(Slots slots, Map<String, StudentCourses> studentCoursesMap, int slotIndex, List<Room> rooms, Map<String, List<String>> seatingArrangement){
-        int roomCount = 0;
 
         try (BufferedReader brrr = new BufferedReader(new FileReader("Rooms.txt"))) {
             String line;
@@ -482,16 +483,19 @@ public class StudentData {
             e.printStackTrace();
         }
 
-        // Get the courses for the given slot
         List<String> coursesInSlot = slots.getSlot(slotIndex);
-        Queue<String> courseQueue = new LinkedList<>(coursesInSlot); 
-        //Map<String, List<String>> seatingArrangement = new HashMap<>();
-        
-        // Initialize room assignments with empty lists
-        for (Room room : rooms) {
-            seatingArrangement.put(room.getLocationId(), new ArrayList<>());
+
+        //Add courses to a stack in reverse order
+        Stack<String> courseStack = new Stack<>();
+        for (int i = coursesInSlot.size() - 1; i >= 0; i--) {
+            courseStack.push(coursesInSlot.get(i));
         }
 
+        //Initialize variables for the two courses
+        String courseA = courseStack.isEmpty() ? null : courseStack.pop();
+        String courseB = courseStack.isEmpty() ? null : courseStack.pop();
+
+        //Create a map to keep track of students for each course
         Map<String, Queue<String>> courseStudentMap = new LinkedHashMap<>();
         for (String course : coursesInSlot) {
             Queue<String> studentsInCourse = new LinkedList<>();
@@ -505,68 +509,93 @@ public class StudentData {
             courseStudentMap.put(course, studentsInCourse);
         }
 
-        // Now start alternating between courses and assigning students to rooms
+        
         for (Room room : rooms) {
-            List<String> assignedStudents = seatingArrangement.get(room.getLocationId());
+            List<String> assignedStudents = new ArrayList<>();
             int deskCount = 0;
 
-            while (deskCount < room.getSeatingCapacity() && !courseQueue.isEmpty()) {
-                // Get two courses from the queue
-                String course1 = courseQueue.poll();
-                String course2 = courseQueue.isEmpty() ? null : courseQueue.poll();
 
-                while (deskCount < room.getSeatingCapacity() && (course1 != null || course2 != null)) {
-                    // Assign one student from course1 if available
-                    if (course1 != null) {
-                        Queue<String> students1 = courseStudentMap.get(course1);
-                        if (students1 != null && !students1.isEmpty()) {
-                            assignedStudents.add(students1.poll() + " (" + course1 + ")"); // Assign a student from course1
-                            deskCount++;
-                        }
 
-                        if (students1 == null || students1.isEmpty()) {
-                            course1 = null; // Mark course1 as exhausted
-                        } else {
-                            courseQueue.add(course1); // Re-add course1 to the queue if students remain
-                        }
+            while (deskCount < room.getSeatingCapacity()) {
+
+                if(courseA == null && courseB == null) {
+                    courseA = courseStack.isEmpty() ? null : courseStack.pop();
+                    courseB = courseStack.isEmpty() ? null : courseStack.pop();
+                }
+
+                if(courseStack.isEmpty() && courseA == null && courseB == null) {
+                    break;
+                }
+
+                // Assign one student from courseA if available
+                if (courseA != null && courseB != null && deskCount < room.getSeatingCapacity()) {
+                    //System.out.println("courseA: "+courseA + "studentsA: "+courseStudentMap.get(courseA).size());
+                    Queue<String> studentsA = courseStudentMap.get(courseA);
+                    if (studentsA != null && !studentsA.isEmpty() && courseB != null) {
+                        assignedStudents.add(studentsA.poll() + " (" + courseA + ")");
+                        deskCount++;
                     }
 
-                    // Assign one student from course2 if available
-                    if (course2 != null && deskCount < room.getSeatingCapacity()) {
-                        Queue<String> students2 = courseStudentMap.get(course2);
-                        if (students2 != null && !students2.isEmpty()) {
-                            assignedStudents.add(students2.poll() + " (" + course2 + ")"); // Assign a student from course2
-                            deskCount++;
-                        }
-
-                        if (students2 == null || students2.isEmpty()) {
-                            course2 = null; // Mark course2 as exhausted
-                        } else {
-                            courseQueue.add(course2); // Re-add course1 to the queue if students remain
-                        }
-                    }
-
-                    // Once both courses are exhausted, pick the next ones from the queue
-                    if (course1 == null && course2 == null && !courseQueue.isEmpty()) {
-                        course1 = courseQueue.poll();
-                        course2 = courseQueue.isEmpty() ? null : courseQueue.poll();
+                    if (studentsA == null || studentsA.isEmpty()) {
+                        //System.out.println("gandu");
+                        courseA = courseStack.isEmpty() ? null : courseStack.pop();
                     }
                 }
+
+                // Assign one student from courseB if available
+                if (courseB != null && courseA != null && deskCount < room.getSeatingCapacity()) {
+                    //System.out.println("courseB: "+courseB + "studentsB: "+courseStudentMap.get(courseB).size());
+                    Queue<String> studentsB = courseStudentMap.get(courseB);
+                    if (studentsB != null && !studentsB.isEmpty()) {
+                        assignedStudents.add(studentsB.poll() + " (" + courseB + ")");
+                        deskCount++;
+                    }
+
+                    if (studentsB == null || studentsB.isEmpty()) {
+                        courseB = courseStack.isEmpty() ? null : courseStack.pop();
+                    }
+                }
+
+                // If only one course is left, add students with a seat gap
+                if (courseA != null && courseB == null && deskCount < room.getSeatingCapacity()) {
+                    //System.out.println("Only one course left: " + courseA + "\n");
+                    Queue<String> studentsA = courseStudentMap.get(courseA);
+                    boolean assignSeat = true;
+                
+                    while (deskCount < room.getSeatingCapacity()) {
+                        if (assignSeat && studentsA != null && !studentsA.isEmpty()) {
+                            assignedStudents.add(studentsA.poll() + " (" + courseA + ")");
+                        } else {
+                            assignedStudents.add("PRN//EMPTY (CSE6969)");
+                        }
+                        assignSeat = !assignSeat;
+                        deskCount++;
+                    }
+                
+                    if (studentsA == null || studentsA.isEmpty()) {
+                        courseA = courseStack.isEmpty() ? null : courseStack.pop();
+                    }
+                }
+
+                
+                if(courseB != null && !courseStudentMap.get(courseB).isEmpty()){
+                    //System.out.println("Pushing course: "+courseB + "students: "+courseStudentMap.get(courseB).size());
+                    courseStack.push(courseB);
+                }
+                courseB = null;
+
+                if(courseA != null && !courseStudentMap.get(courseA).isEmpty()){
+                    courseStack.push(courseA);
+                }
+                courseA = null;
             }
 
+            // Print the assigned students for each room
             //System.out.println("Room: " + room.getLocationId() + " Students: " + assignedStudents);
-
-            if(!assignedStudents.isEmpty()) {
-                roomCount++;
-            }
-
-            // Put the updated list back into the seating arrangement map
             seatingArrangement.put(room.getLocationId(), assignedStudents);
         }
-
-        //System.out.println("Rooms Used: " + roomCount);
     }
-
+    //human computer interaction, optoelectronics, devops tools, database managent
     public static String getDepartment(String course){
 
         if(course.equals("BBA")) return "SOM";
@@ -607,7 +636,7 @@ public class StudentData {
     }
 
     public static void assignInvigilators(Map<String, List<String>> seatingArrangement, List<Staff> invigilators, List<InvigilatorRoom> invigilatorRooms) {
-        Map<String, Set<String>> courseInRoom = new HashMap<>();
+        Map<String, Set<String>> courseInRoom = new LinkedHashMap<>();
 
         for(Staff invigilator : invigilators){
             if(invigilator.getusedLastSlot().equals("Yes")) invigilator.setusedLastSlot("No");
@@ -712,6 +741,7 @@ public class StudentData {
                         data[2], // studentName
                         data[7], // section
                         data[8] // courseCode
+                        //Faculty details + day + slot + room
                 );
                 studentRecords.add(record);
             }
@@ -755,7 +785,7 @@ public class StudentData {
             }      
     
             // Update student courses info
-            String rollNumber = record.rollNumber + "/" + record.studentName;
+            String rollNumber = record.rollNumber + "//" + record.studentName;
             studentCoursesMap.putIfAbsent(rollNumber, new StudentCourses(rollNumber));
             studentCoursesMap.get(rollNumber).addCourse(courseCode);
 
@@ -773,6 +803,15 @@ public class StudentData {
         List<CourseInfo> courseInfoList = new ArrayList<>(courseInfoMap.values());
         courseInfoList = mergeSort(courseInfoList, Comparator.comparing(CourseInfo::getStudentCount).reversed());
         courseInfoList = mergeSort(courseInfoList, Comparator.comparing(CourseInfo::getProposedDay));
+
+        //remove entries in courseInfoList if studentCount is 0
+        Iterator<CourseInfo> iterator = courseInfoList.iterator();
+        while (iterator.hasNext()) {
+            CourseInfo courseInfo = iterator.next();
+            if (courseInfo.getStudentCount() == 0) {
+                iterator.remove(); // Safely removes the current element
+            }
+        }
     
         // Print sorted course info
         /*System.out.println("Course Info (sorted by student count):");
@@ -815,7 +854,6 @@ public class StudentData {
                 for(int i = 0; i < slots.getNumberOfSlots(); i++){
                     for(String mainCourse : course){
                         if(slots.getSlot(i).contains(mainCourse)){
-                            //writer.write("Day: " + ((i/3)+1) + "\t" + "Slot: " + (i%3+1) + "\t" + "CourseCode: " + mainCourse + "\t" + "CourseTitle: " + courseInfoMap.get(mainCourse).getCourseTitle() + "\t" + "Program: " + entry.getKey().get(0) + "\t" + "Semester: " + entry.getKey().get(1) + "\t" + "School: " + courseInfoMap.get(mainCourse).school + "\n");
                             writer.write(((i/3)+1) + "\t" + (i%3+1) + "\t" + mainCourse + "\t" + courseInfoMap.get(mainCourse).getCourseTitle() + "\t" + entry.getKey().get(0) + "\t" + entry.getKey().get(1) + "\t" + courseInfoMap.get(mainCourse).school + "\n");
                         }
                     }
@@ -840,6 +878,7 @@ public class StudentData {
 
 
         for (int i = 0; i < slots.getNumberOfSlots(); i++) {
+            //int i = 0;    
             List<Room> rooms = new ArrayList<>();
             Map<String, List<String>> seatingArrangement = new LinkedHashMap<>();
             generateSeatingArrangement(slots, studentCoursesMap, i, rooms, seatingArrangement);
@@ -854,8 +893,8 @@ public class StudentData {
                     int seatIndex = 0;
 
                     for (String student : students) {
-                        String rollNo = student.substring(0, student.indexOf("/"));
-                        String name = student.substring(student.indexOf("/") + 1, student.indexOf("("));
+                        String rollNo = student.substring(0, student.indexOf("//"));
+                        String name = student.substring(student.indexOf("//") + 2, student.indexOf("(")-1);
                         String courseCode = student.substring(student.indexOf("(") + 1, student.indexOf(")"));
                         String seatNo = Integer.toString(seatRange[seatIndex]);
                         seatIndex++;
