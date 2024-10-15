@@ -440,7 +440,7 @@ SOIS	BSD	2022	CSA3002	Machine Learning Algorithms
 SOIS	BSD	2022	CSA3004	Big Data Analytics	
 SOIS	BSD	2022	CSA3014	Natural Language Processing	1
 SOIS	BSD	2022	CSA2008	Essentials of Cloud Computing	
-SOIS	BSD	2022	CSA3074	Reinforcment Learning	4
+SOIS	BSD	2022	CSA3074	Reinforcement Learning	4
 SOIS	BSD	2022	BBA2088	Open Elective	
 SOIS	BCA	2023	CSA2003	Relational Database Management Systems	
 SOIS	BCA	2023	CSA2007	Data Mining	
