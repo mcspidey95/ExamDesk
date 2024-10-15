@@ -362,7 +362,7 @@ public class StudentData {
             boolean conflict = true;
             while (conflict) {
                 conflict = false;
-                Boolean fixedBreak = false;
+                Boolean fixedBreak = true;
                 Set<String> combinedSlotCourses = new HashSet<>();
                 Set<String> currentSlotCourses = new HashSet<>();
                 Set<String> directSlotCourses = new HashSet<>();
@@ -420,7 +420,7 @@ public class StudentData {
                 }
 
                 for (String matchedCourse : matchedCourses) {
-                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > 6912) { //6912
+                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > 5000) { //6912
                         // Conflict found, increment the slot index and try again
                         slotIndex++;
                         if (slotIndex > slots.getNumberOfSlots()) {
