@@ -635,8 +635,14 @@ public class StudentData {
         return course;
     }
 
-    public static void assignInvigilators(Map<String, List<String>> seatingArrangement, List<Staff> invigilators, List<InvigilatorRoom> invigilatorRooms) {
+    public static void assignInvigilators(Map<String, List<String>> seatingArrangement, List<Staff> invigilators, List<InvigilatorRoom> invigilatorRooms, int slotIndex) {
         Map<String, Set<String>> courseInRoom = new LinkedHashMap<>();
+
+        if(slotIndex%3 == 0){
+            for(Staff invigilator : invigilators){
+                invigilator.setusedLastSlot("No");
+            }
+        }
 
         for(Staff invigilator : invigilators){
             if(invigilator.getusedLastSlot().equals("Yes")) invigilator.setusedLastSlot("No");
@@ -672,7 +678,7 @@ public class StudentData {
 
                 for(Staff invigilator: invigilators){
                     if(invigilator.getStaffDept().equals(getDepartment(course[0].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.isNotToInvigilate(course[0])){
-                        invigilatorAssigned = invigilator.getStaffName();
+                        invigilatorAssigned = invigilator.getStaffID() + "/" + invigilator.getStaffName() + "@" + invigilator.getStaffDept();
                         invigilator.setusedLastSlot("Yes_n");
                         invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
                         break;
@@ -686,7 +692,7 @@ public class StudentData {
                 while(index < course.length){
                     for(Staff invigilator: invigilators){
                         if(invigilator.getStaffDept().equals(getDepartment(course[index].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.isNotToInvigilate(course[index])){
-                            invigilatorAssigned = invigilator.getStaffName();
+                            invigilatorAssigned = invigilator.getStaffID() + "/" + invigilator.getStaffName() + "@" + invigilator.getStaffDept();
                             invigilator.setusedLastSlot("Yes_n");
                             invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
                             break;
@@ -708,7 +714,7 @@ public class StudentData {
             if(invigilatorRoom.getInvigilator().equals("NA")){
                 for(Staff invigilator: invigilators){
                     if(invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0){
-                        invigilatorRoom.setInvigilator(invigilator.getStaffName());
+                        invigilatorRoom.setInvigilator((invigilator.getStaffID() + "/" + invigilator.getStaffName() + "@" + invigilator.getStaffDept()));
                         invigilator.setusedLastSlot("Yes_n");
                         invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
                         break;
@@ -717,9 +723,24 @@ public class StudentData {
             }
         }
 
-        for(InvigilatorRoom room: invigilatorRooms){
-            System.out.println("Room: "+room.getLocationId()+" ---> "+room.getInvigilator());
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Invigilator_Assignment.tsv", true))) {
+
+            for(InvigilatorRoom room: invigilatorRooms){
+                String invigilator = room.getInvigilator();
+                String invigilatorId = invigilator.substring(0, invigilator.indexOf("/"));
+                String invigilatorName = invigilator.substring(invigilator.indexOf("/")+1, invigilator.indexOf("@"));
+                String invigilatorDept = invigilator.substring(invigilator.indexOf("@")+1);
+
+                writer.write(((slotIndex/3)+1) + "\t" + (slotIndex%3+1) + "\t" + room.getLocationId() + "\t" + invigilatorId + "\t" + invigilatorName + "\t" + invigilatorDept + "\n");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+        /*for(InvigilatorRoom room: invigilatorRooms){
+            System.out.println("Room: "+room.getLocationId()+" ---> "+room.getInvigilator());
+        }*/
     }
 
     public static void main(String[] args) {
@@ -867,6 +888,41 @@ public class StudentData {
             e.printStackTrace();
         }
 
+        List<Staff> invigilators = new ArrayList<>();
+        try (BufferedReader brrr = new BufferedReader(new FileReader("Invigilators.txt"))) {
+            String line;
+
+            brrr.readLine();
+
+            while ((line = brrr.readLine()) != null) {
+                String[] details = line.split("\t");
+
+                String staffID = details[0];
+                String staffDept = details[1];
+                String staffName = details[2];
+                int staffSlots = Integer.parseInt(details[3]);
+                String[] notToInvigilate = new String[0];
+                String usedLastSlot = "No";
+                if (details.length > 4) {
+                    notToInvigilate = details[4].split(",");
+                }
+
+                invigilators.add(new Staff(staffID, staffName, staffDept, staffSlots, usedLastSlot, notToInvigilate));
+            }
+
+            brrr.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Invigilator_Assignment.tsv"))) {
+
+            writer.write("Day" + "\t" + "Slot" + "\t" +  "Room" + "\t" +  "Invigilator ID" + "\t" +  "Invigilator Name" + "\t" +  "Invigilator Dept" + "\n");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("Seating_Arrangement.tsv"))) {
 
             // date, slot, roomNo, rollNo, Name, SeatNo, CourseCode, CourseName
@@ -882,6 +938,9 @@ public class StudentData {
             List<Room> rooms = new ArrayList<>();
             Map<String, List<String>> seatingArrangement = new LinkedHashMap<>();
             generateSeatingArrangement(slots, studentCoursesMap, i, rooms, seatingArrangement);
+
+            List<InvigilatorRoom> invigilatorRooms = new ArrayList<>();
+            assignInvigilators(seatingArrangement, invigilators, invigilatorRooms, i);
 
             // Print the seating arrangement
             try (BufferedWriter writer = new BufferedWriter(new FileWriter("Seating_Arrangement.tsv", true))) {
@@ -916,46 +975,7 @@ public class StudentData {
 
             
         } 
-      
-      
-            
-
-        List<Staff> invigilators = new ArrayList<>();
-        try (BufferedReader brrr = new BufferedReader(new FileReader("Invigilators.txt"))) {
-            String line;
-
-            brrr.readLine();
-
-            while ((line = brrr.readLine()) != null) {
-                String[] details = line.split("\t");
-
-                String staffID = details[0];
-                String staffDept = details[1];
-                String staffName = details[2];
-                int staffSlots = Integer.parseInt(details[3]);
-                String[] notToInvigilate = new String[0];
-                String usedLastSlot = "No";
-                if (details.length > 4) {
-                    notToInvigilate = details[4].split(",");
-                }
-
-                invigilators.add(new Staff(staffID, staffName, staffDept, staffSlots, usedLastSlot, notToInvigilate));
-            }
-
-            brrr.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        List<InvigilatorRoom> invigilatorRooms = new ArrayList<>();
-        /*assignInvigilators(seatingArrangement, invigilators, invigilatorRooms);
-        System.out.println("Invigilators assigned!");
-        invigilatorRooms = new ArrayList<>();
-        assignInvigilators(seatingArrangement, invigilators, invigilatorRooms);
-        System.out.println("Invigilators assigned!");
-        invigilatorRooms = new ArrayList<>();
-        assignInvigilators(seatingArrangement, invigilators, invigilatorRooms);
+        
 
         /*Set<String> uniqueCourseCodes = new HashSet<>();
 
