@@ -1,8 +1,1 @@
-/StudentData$CourseInfo.class
-/StudentData$Room.class
-/StudentData$Slots.class
-/StudentData$StudentCourses.class
-/StudentData$StudentRecord.class
-/StudentData$invigilatorRoom.class
-/StudentData$Staff.class
-/StudentData.class
+*.class
