@@ -1,5 +1,7 @@
 package classes;
 
+import java.util.List;
+
 public class Staff{
     String staffID;
     String staffName;
@@ -45,9 +47,9 @@ public class Staff{
         this.totalSlots = totalSlots;
     }
 
-    public boolean isNotToInvigilate(String courseCode) {
+    public boolean isNotToInvigilate(List<String> slots) {
         for (String course : notToInvigilate) {
-            if (course.equals(courseCode)) {
+            if (slots.contains(course)) {
                 return false;
             }
         }

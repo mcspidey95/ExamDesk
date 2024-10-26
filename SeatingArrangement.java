@@ -196,7 +196,7 @@ public class SeatingArrangement {
         return course;
     }
 
-    public static void assignInvigilators(Map<String, List<String>> seatingArrangement, List<Staff> invigilators, List<InvigilatorRoom> invigilatorRooms, int slotIndex) {
+    public static void assignInvigilators(Map<String, List<String>> seatingArrangement, List<Staff> invigilators, List<InvigilatorRoom> invigilatorRooms, int slotIndex, Slots slots) {
         Map<String, Set<String>> courseInRoom = new LinkedHashMap<>();
 
         if(slotIndex%3 == 0){
@@ -238,7 +238,7 @@ public class SeatingArrangement {
             if(entry.getValue().size() == 1){
 
                 for(Staff invigilator: invigilators){
-                    if(invigilator.getStaffDept().equals(getDepartment(course[0].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.isNotToInvigilate(course[0])){
+                    if(invigilator.getStaffDept().equals(getDepartment(course[0].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.isNotToInvigilate(slots.getSlot(slotIndex))){
                         invigilatorAssigned = invigilator.getStaffID() + "/" + invigilator.getStaffName() + "@" + invigilator.getStaffDept();
                         invigilator.setusedLastSlot("Yes_n");
                         invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
@@ -252,7 +252,7 @@ public class SeatingArrangement {
 
                 while(index < course.length){
                     for(Staff invigilator: invigilators){
-                        if(invigilator.getStaffDept().equals(getDepartment(course[index].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.isNotToInvigilate(course[index])){
+                        if(invigilator.getStaffDept().equals(getDepartment(course[index].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.isNotToInvigilate(slots.getSlot(slotIndex))){
                             invigilatorAssigned = invigilator.getStaffID() + "/" + invigilator.getStaffName() + "@" + invigilator.getStaffDept();
                             invigilator.setusedLastSlot("Yes_n");
                             invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
@@ -368,7 +368,7 @@ public class SeatingArrangement {
             generateSeatingArrangement(slots, studentCoursesMap, i, rooms, seatingArrangement);
 
             List<InvigilatorRoom> invigilatorRooms = new ArrayList<>();
-            assignInvigilators(seatingArrangement, invigilators, invigilatorRooms, i);
+            assignInvigilators(seatingArrangement, invigilators, invigilatorRooms, i, slots);
 
             // Print the seating arrangement
             try (BufferedWriter writer = new BufferedWriter(new FileWriter("./documents/Seating_Arrangement.tsv", true))) {
