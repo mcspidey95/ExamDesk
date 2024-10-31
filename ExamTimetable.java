@@ -19,6 +19,15 @@ import classes.StudentRecord;
 import classes.Utils;
 
 public class ExamTimetable {
+    
+    //Parameters
+    static boolean ENDTERM_MODE = false;   //FOR ENDTERM SET TO TRUE
+    static boolean FIXED_BREAK = true;
+    static int SLOTS_PER_DAY = 3;          //FOR ENDTERM SET TO 2
+    static int EXAMS_PER_SLOT = 2;         //FOR ENDTERM SET TO 1
+    static int STUDENTS_PER_SLOT = 5700;  //6912      (No. of classrooms * (classroom capacity))
+
+
 
     public static void assignCoursesToSlots(Slots slots, Map<String, StudentCourses> studentCoursesMap, List<CourseInfo> leftoverCourses, List<CourseInfo> courseInfoList) {
         int slotIndex = 1;
@@ -37,7 +46,7 @@ public class ExamTimetable {
         for (CourseInfo courseInfo : leftoverCourses) {
             slotIndex = 1;
             if(courseInfo.getProposedDay() != 999){
-                slotIndex = (courseInfo.getProposedDay()*3)-2;
+                slotIndex = (courseInfo.getProposedDay()*SLOTS_PER_DAY)-(SLOTS_PER_DAY-1);
             }
             String initialCourse = courseInfo.getCourseCode();
 
@@ -68,15 +77,14 @@ public class ExamTimetable {
             boolean conflict = true;
             while (conflict) {
                 conflict = false;
-                Boolean fixedBreak = true;
                 Set<String> combinedSlotCourses = new HashSet<>();
                 Set<String> currentSlotCourses = new HashSet<>();
                 Set<String> directSlotCourses = new HashSet<>();
 
-                int modIndex = (slotIndex-1)%3;
+                int modIndex = (slotIndex-1)%SLOTS_PER_DAY;
                 int mainslotIndex = slotIndex - 1;
-                int altslotIndex1 = 20;
-                int altslotIndex2 = 20;
+                int altslotIndex1 = 100;
+                int altslotIndex2 = 100;
 
                 if(modIndex == 0){
                     altslotIndex1 = slotIndex;
@@ -91,7 +99,7 @@ public class ExamTimetable {
                     altslotIndex2 = slotIndex - 3;
                 }
                 
-                if(fixedBreak){
+                if(!ENDTERM_MODE && FIXED_BREAK){
                     if(modIndex == 0 && altslotIndex1 < slots.getNumberOfSlots()){
                         directSlotCourses.addAll(slots.getSlot(altslotIndex1));
                     }
@@ -111,7 +119,7 @@ public class ExamTimetable {
                     combinedSlotCourses.addAll(slots.getSlot(altslotIndex1));
                 }
 
-                if(altslotIndex2 < slots.getNumberOfSlots()) {
+                if(!ENDTERM_MODE && altslotIndex2 < slots.getNumberOfSlots()) {
                     combinedSlotCourses.addAll(slots.getSlot(altslotIndex2));
                 }
 
@@ -126,7 +134,7 @@ public class ExamTimetable {
                 }
 
                 for (String matchedCourse : matchedCourses) {
-                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > 5700) { //6912
+                    if (currentSlotCourses.contains(matchedCourse) || directSlotCourses.contains(matchedCourse) || totalStudentCount > STUDENTS_PER_SLOT) {
                         // Conflict found, increment the slot index and try again
                         slotIndex++;
                         if (slotIndex > slots.getNumberOfSlots()) {
@@ -137,7 +145,7 @@ public class ExamTimetable {
                     }
                     if (combinedSlotCourses.contains(matchedCourse)) {
                         clashedCourses++;
-                        if (clashedCourses > 1) {
+                        if (clashedCourses > EXAMS_PER_SLOT-1) {
                             // Conflict found, increment the slot index and try again
                             slotIndex++;
                             clashedCourses = 0;
@@ -219,7 +227,7 @@ public class ExamTimetable {
         assignCoursesToSlots(slots, studentCoursesMap, leftoverCourses, courseInfoList);
         System.out.println("Slots after assigning courses: " + slots);
         System.out.println("Slots created: " + slots.getNumberOfSlots());
-        System.out.println("No. of days: " + ((slots.getNumberOfSlots() + 2) / 3));
+        System.out.println("No. of days: " + ((slots.getNumberOfSlots() + (SLOTS_PER_DAY-1)) / SLOTS_PER_DAY));
         //System.out.println("LeftOverCourses: " + leftoverCourses);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("./documents/Exam_Timetable.tsv"))) {
@@ -232,7 +240,7 @@ public class ExamTimetable {
                 for(int i = 0; i < slots.getNumberOfSlots(); i++){
                     for(String mainCourse : course){
                         if(slots.getSlot(i).contains(mainCourse)){
-                            writer.write(((i/3)+1) + "\t" + (i%3+1) + "\t" + mainCourse + "\t" + courseInfoMap.get(mainCourse).getCourseTitle() + "\t" + entry.getKey().get(0) + "\t" + entry.getKey().get(1) + "\t" + courseInfoMap.get(mainCourse).getSchool() + "\n");
+                            writer.write(((i/SLOTS_PER_DAY)+1) + "\t" + (i%SLOTS_PER_DAY+1) + "\t" + mainCourse + "\t" + courseInfoMap.get(mainCourse).getCourseTitle() + "\t" + entry.getKey().get(0) + "\t" + entry.getKey().get(1) + "\t" + courseInfoMap.get(mainCourse).getSchool() + "\n");
                         }
                     }
 

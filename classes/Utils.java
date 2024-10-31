@@ -66,7 +66,7 @@ public class Utils {
             // Update course info       
             if(courseInfoMap.get(courseCode) != null)
             {
-                courseInfoMap.get(courseCode).setStudentCount(courseInfoMap.get(courseCode).getStudentCount()+1);;
+                courseInfoMap.get(courseCode).setStudentCount(courseInfoMap.get(courseCode).getStudentCount()+1);
             }      
     
             // Update student courses info
