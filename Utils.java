@@ -1,4 +1,4 @@
-package classes;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -6,10 +6,58 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import classes.CourseInfo;
+import classes.Slots;
+import classes.StudentCourses;
+import classes.StudentRecord;
+
 import java.util.Comparator;
 
-
 public class Utils {
+
+    public static void fetchParameters(){
+        try (BufferedReader reader = new BufferedReader(new FileReader("./metadata/parameters.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(": ");
+                if (parts.length == 2) {
+                    String variableName = parts[0].trim();
+                    String variableValue = parts[1].trim();
+
+                    // Assign the value to the corresponding global variable
+                    switch (variableName) {
+                        case "ENDTERM_MODE":
+                            ExamTimetable.ENDTERM_MODE = Boolean.parseBoolean(variableValue);
+                            SeatingArrangement.ENDTERM_MODE = Boolean.parseBoolean(variableValue);
+                            break;
+
+                        case "FIXED_BREAK":
+                            ExamTimetable.FIXED_BREAK = Boolean.parseBoolean(variableValue);
+                            break;
+
+                        case "SLOTS_PER_DAY":
+                            ExamTimetable.SLOTS_PER_DAY = Integer.parseInt(variableValue);
+                            SeatingArrangement.SLOTS_PER_DAY = Integer.parseInt(variableValue);
+                            break;
+
+                        case "EXAMS_PER_SLOT":
+                            ExamTimetable.EXAMS_PER_SLOT = Integer.parseInt(variableValue);
+                            break;
+
+                        case "STUDENTS_PER_SLOT":
+                            ExamTimetable.STUDENTS_PER_SLOT = Integer.parseInt(variableValue);
+                            break;
+
+                        default:
+                            
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void fetchStudentData(List<StudentRecord> studentRecords, Map<String, CourseInfo> courseInfoMap, Map<String, StudentCourses> studentCoursesMap, Map<List<String>, StudentCourses> programMap){
 

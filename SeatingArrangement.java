@@ -20,13 +20,12 @@ import classes.Slots;
 import classes.Staff;
 import classes.StudentCourses;
 import classes.StudentRecord;
-import classes.Utils;
 
 public class SeatingArrangement {
 
-    //Parameters
-    static boolean ENDTERM_MODE = false;   //FOR ENDTERM SET TO TRUE
-    static int SLOTS_PER_DAY = 3;          //FOR ENDTERM SET TO 2
+    //CHANGE VALUES IN /metadata/parameters.txt FILE
+    static boolean ENDTERM_MODE;    //FOR ENDTERM SET TO TRUE
+    static int SLOTS_PER_DAY;       //FOR ENDTERM SET TO 2
 
     
     public static void generateSeatingArrangement(Slots slots, Map<String, StudentCourses> studentCoursesMap, int slotIndex, List<Room> rooms, Map<String, List<String>> seatingArrangement){
@@ -360,8 +359,9 @@ public class SeatingArrangement {
         Map<List<String>, StudentCourses> programMap = new LinkedHashMap<>();
         Slots slots = Utils.fetchSlots();
 
-        System.out.println("Slots after assigning courses: " + slots);
+        //System.out.println("Slots after assigning courses: " + slots);
 
+        Utils.fetchParameters();
         Utils.fetchStudentData(studentRecords, courseInfoMap, studentCoursesMap, programMap);
 
         List<Staff> invigilators = new ArrayList<>();

@@ -16,20 +16,18 @@ import classes.CourseInfo;
 import classes.Slots;
 import classes.StudentCourses;
 import classes.StudentRecord;
-import classes.Utils;
 
 public class ExamTimetable {
     
-    //Parameters
-    static boolean ENDTERM_MODE = false;   //FOR ENDTERM SET TO TRUE
-    static boolean FIXED_BREAK = true;
-    static int SLOTS_PER_DAY = 3;          //FOR ENDTERM SET TO 2
-    static int EXAMS_PER_SLOT = 2;         //FOR ENDTERM SET TO 1
-    static int STUDENTS_PER_SLOT = 5700;  //6912      (No. of classrooms * (classroom capacity))
-
-
+    //CHANGE VALUES IN /metadata/parameters.txt FILE
+    public static boolean ENDTERM_MODE;    //FOR ENDTERM SET TO TRUE
+    public static boolean FIXED_BREAK;
+    public static int SLOTS_PER_DAY;       //FOR ENDTERM SET TO 2
+    public static int EXAMS_PER_SLOT;      //FOR ENDTERM SET TO 1
+    public static int STUDENTS_PER_SLOT;   //6912      (No. of classrooms * (classroom capacity))
 
     public static void assignCoursesToSlots(Slots slots, Map<String, StudentCourses> studentCoursesMap, List<CourseInfo> leftoverCourses, List<CourseInfo> courseInfoList) {
+        
         int slotIndex = 1;
         int clashedCourses = 0;
 
@@ -184,6 +182,7 @@ public class ExamTimetable {
         Map<String, StudentCourses> studentCoursesMap = new LinkedHashMap<>();
         Map<List<String>, StudentCourses> programMap = new LinkedHashMap<>();
 
+        Utils.fetchParameters();
         Utils.fetchStudentData(studentRecords, courseInfoMap, studentCoursesMap, programMap);
 
         List<CourseInfo> courseInfoList = new ArrayList<>(courseInfoMap.values());
