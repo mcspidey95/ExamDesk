@@ -23,6 +23,11 @@ import classes.StudentRecord;
 import classes.Utils;
 
 public class SeatingArrangement {
+
+    //Parameters
+    static boolean ENDTERM_MODE = false;   //FOR ENDTERM SET TO TRUE
+    static int SLOTS_PER_DAY = 3;          //FOR ENDTERM SET TO 2
+
     
     public static void generateSeatingArrangement(Slots slots, Map<String, StudentCourses> studentCoursesMap, int slotIndex, List<Room> rooms, Map<String, List<String>> seatingArrangement){
 
@@ -98,7 +103,6 @@ public class SeatingArrangement {
                     }
 
                     if (studentsA == null || studentsA.isEmpty()) {
-                        //System.out.println("gandu");
                         courseA = courseStack.isEmpty() ? null : courseStack.pop();
                     }
                 }
@@ -199,14 +203,14 @@ public class SeatingArrangement {
     public static void assignInvigilators(Map<String, List<String>> seatingArrangement, List<Staff> invigilators, List<InvigilatorRoom> invigilatorRooms, int slotIndex, Slots slots) {
         Map<String, Set<String>> courseInRoom = new LinkedHashMap<>();
 
-        if(slotIndex%3 == 0){
+        if(slotIndex%SLOTS_PER_DAY == 0){
             for(Staff invigilator : invigilators){
                 invigilator.setusedLastSlot("No");
             }
         }
 
         for(Staff invigilator : invigilators){
-            if(invigilator.getusedLastSlot().equals("Yes")) invigilator.setusedLastSlot("No");
+            if(invigilator.getusedLastSlot().equals("Yes") || invigilator.getusedLastSlot().equals("No_r")) invigilator.setusedLastSlot("No");
         }
 
         for(Staff invigilator : invigilators){
@@ -234,28 +238,57 @@ public class SeatingArrangement {
             String roomId = entry.getKey();
             String[] course = entry.getValue().toArray(new String[0]);
             String invigilatorAssigned = "NA";
+            String relieverAssigned = "NA";
 
             if(entry.getValue().size() == 1){
 
                 for(Staff invigilator: invigilators){
-                    if(invigilator.getStaffDept().equals(getDepartment(course[0].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.isNotToInvigilate(slots.getSlot(slotIndex))){
+                    if(invigilator.getStaffDept().equals(getDepartment(course[0].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.canInvigilate(slots.getSlot(slotIndex))){
                         invigilatorAssigned = invigilator.getStaffID() + "/" + invigilator.getStaffName() + "@" + invigilator.getStaffDept();
-                        invigilator.setusedLastSlot("Yes_n");
+                        if(!ENDTERM_MODE){
+                            invigilator.setusedLastSlot("Yes_n");
+                        }
+                        else{
+                            invigilator.setusedLastSlot("Yes");
+                        }
                         invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
                         break;
                     }
                 }
-                invigilatorRooms.add(new InvigilatorRoom(roomId, invigilatorAssigned, "NA"));
+
+                for(Staff invigilator: invigilators){
+                    if(ENDTERM_MODE && relieverAssigned.equals("NA") && invigilator.getusedLastSlot().equals("No") && invigilator.getRelieverSlots()>0 && invigilator.canInvigilate(slots.getSlot(slotIndex))){
+                        relieverAssigned = invigilator.getStaffID() + "/" + invigilator.getStaffName();
+                        invigilator.setRelieverSlots(invigilator.getRelieverSlots() - 1);
+                        invigilator.setusedLastSlot("No_r");
+                        break;
+                    }
+                }
+                invigilatorRooms.add(new InvigilatorRoom(roomId, invigilatorAssigned, relieverAssigned));
             }
             else if(entry.getValue().size() > 1){
                 int index = 0;
 
                 while(index < course.length){
                     for(Staff invigilator: invigilators){
-                        if(invigilator.getStaffDept().equals(getDepartment(course[index].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.isNotToInvigilate(slots.getSlot(slotIndex))){
+                        if(invigilator.getStaffDept().equals(getDepartment(course[index].substring(0,3))) && invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0 && invigilator.canInvigilate(slots.getSlot(slotIndex))){
                             invigilatorAssigned = invigilator.getStaffID() + "/" + invigilator.getStaffName() + "@" + invigilator.getStaffDept();
-                            invigilator.setusedLastSlot("Yes_n");
+                            if(!ENDTERM_MODE){
+                                invigilator.setusedLastSlot("Yes_n");
+                            }
+                            else{
+                                invigilator.setusedLastSlot("Yes");
+                            }
                             invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
+                            break;
+                        }
+                    }
+
+                    for(Staff invigilator: invigilators){
+                        if(ENDTERM_MODE && relieverAssigned.equals("NA") && invigilator.getusedLastSlot().equals("No") && invigilator.getRelieverSlots()>0 && invigilator.canInvigilate(slots.getSlot(slotIndex))){
+                            relieverAssigned = invigilator.getStaffID() + "/" + invigilator.getStaffName();
+                            invigilator.setRelieverSlots(invigilator.getRelieverSlots() - 1);
+                            invigilator.setusedLastSlot("No_r");
                             break;
                         }
                     }
@@ -267,7 +300,7 @@ public class SeatingArrangement {
                         break;
                     }
                 }
-                invigilatorRooms.add(new InvigilatorRoom(roomId, invigilatorAssigned, "NA"));
+                invigilatorRooms.add(new InvigilatorRoom(roomId, invigilatorAssigned, relieverAssigned));
             }
         }
 
@@ -276,7 +309,12 @@ public class SeatingArrangement {
                 for(Staff invigilator: invigilators){
                     if(invigilator.getusedLastSlot().equals("No") && invigilator.getTotalSlots()>0){
                         invigilatorRoom.setInvigilator((invigilator.getStaffID() + "/" + invigilator.getStaffName() + "@" + invigilator.getStaffDept()));
-                        invigilator.setusedLastSlot("Yes_n");
+                        if(!ENDTERM_MODE){
+                            invigilator.setusedLastSlot("Yes_n");
+                        }
+                        else{
+                            invigilator.setusedLastSlot("Yes");
+                        }
                         invigilator.setTotalSlots(invigilator.getTotalSlots() - 1);
                         break;
                     }
@@ -291,8 +329,18 @@ public class SeatingArrangement {
                 String invigilatorId = invigilator.substring(0, invigilator.indexOf("/"));
                 String invigilatorName = invigilator.substring(invigilator.indexOf("/")+1, invigilator.indexOf("@"));
                 String invigilatorDept = invigilator.substring(invigilator.indexOf("@")+1);
+                String reliever = room.getReliever();
 
-                writer.write(((slotIndex/3)+1) + "\t" + (slotIndex%3+1) + "\t" + room.getLocationId() + "\t" + invigilatorId + "\t" + invigilatorName + "\t" + invigilatorDept + "\n");
+                if(!ENDTERM_MODE){
+
+                    writer.write(((slotIndex/SLOTS_PER_DAY)+1) + "\t" + (slotIndex%SLOTS_PER_DAY+1) + "\t" + room.getLocationId() + "\t" + invigilatorId + "\t" + invigilatorName + "\t" + invigilatorDept + "\n");
+                }
+                else{
+                    String relieverId = reliever.substring(0, reliever.indexOf("/"));
+                    String relieverName = reliever.substring(reliever.indexOf("/")+1);
+
+                    writer.write(((slotIndex/SLOTS_PER_DAY)+1) + "\t" + (slotIndex%SLOTS_PER_DAY+1) + "\t" + room.getLocationId() + "\t" + invigilatorId + "\t" + invigilatorName + "\t" + invigilatorDept + "\t" + relieverId + "\t" + relieverName + "\n");
+                }
             }
 
         } catch (IOException e) {
@@ -334,8 +382,9 @@ public class SeatingArrangement {
                 if (details.length > 4) {
                     notToInvigilate = details[4].split(",");
                 }
+                int relieverSlots = 6;
 
-                invigilators.add(new Staff(staffID, staffName, staffDept, staffSlots, usedLastSlot, notToInvigilate));
+                invigilators.add(new Staff(staffID, staffName, staffDept, staffSlots, usedLastSlot, notToInvigilate, relieverSlots));
             }
 
             brrr.close();
@@ -345,7 +394,13 @@ public class SeatingArrangement {
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("./documents/Invigilator_Assignment.tsv"))) {
 
-            writer.write("Day" + "\t" + "Slot" + "\t" +  "Room" + "\t" +  "Invigilator ID" + "\t" +  "Invigilator Name" + "\t" +  "Invigilator Dept" + "\n");
+            if(!ENDTERM_MODE){
+                writer.write("Day" + "\t" + "Slot" + "\t" +  "Room" + "\t" +  "Invigilator ID" + "\t" +  "Invigilator Name" + "\t" +  "Invigilator Dept" + "\n");
+            }
+            else{
+                writer.write("Day" + "\t" + "Slot" + "\t" +  "Room" + "\t" +  "Invigilator ID" + "\t" +  "Invigilator Name" + "\t" +  "Invigilator Dept" + "\t" +  "Reliever ID" + "\t" +  "Reliever Name" + "\n");
+            }
+            
 
         } catch (IOException e) {
             e.printStackTrace();

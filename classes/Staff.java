@@ -9,14 +9,16 @@ public class Staff{
     int totalSlots;
     String usedLastSlot;
     String[] notToInvigilate;
+    int relieverSlots;
 
-    public Staff(String staffID, String staffName, String staffDept, int totalSlots, String usedLastSlot, String[] notToInvigilate) {
+    public Staff(String staffID, String staffName, String staffDept, int totalSlots, String usedLastSlot, String[] notToInvigilate, int relieverSlots) {
         this.staffID = staffID;
         this.staffName = staffName;
         this.staffDept = staffDept;
         this.totalSlots = totalSlots;
         this.usedLastSlot = usedLastSlot;
         this.notToInvigilate = notToInvigilate;
+        this.relieverSlots = relieverSlots;
     }
 
     public String getStaffID() {
@@ -39,6 +41,10 @@ public class Staff{
         return usedLastSlot;
     }
 
+    public int getRelieverSlots() {
+        return relieverSlots;
+    }
+
     public void setusedLastSlot(String usedLastSlot){
         this.usedLastSlot = usedLastSlot;
     }
@@ -47,7 +53,11 @@ public class Staff{
         this.totalSlots = totalSlots;
     }
 
-    public boolean isNotToInvigilate(List<String> slots) {
+    public void setRelieverSlots(int relieverSlots) {
+        this.relieverSlots = relieverSlots;
+    }
+
+    public boolean canInvigilate(List<String> slots) {
         for (String course : notToInvigilate) {
             if (slots.contains(course)) {
                 return false;
