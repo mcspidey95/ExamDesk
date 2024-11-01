@@ -239,7 +239,7 @@ public class ExamTimetable {
                 for(int i = 0; i < slots.getNumberOfSlots(); i++){
                     for(String mainCourse : course){
                         if(slots.getSlot(i).contains(mainCourse)){
-                            writer.write(((i/SLOTS_PER_DAY)+1) + "\t" + (i%SLOTS_PER_DAY+1) + "\t" + mainCourse + "\t" + courseInfoMap.get(mainCourse).getCourseTitle() + "\t" + entry.getKey().get(0) + "\t" + entry.getKey().get(1) + "\t" + courseInfoMap.get(mainCourse).getSchool() + "\n");
+                            writer.write(Utils.dayToDate((i/SLOTS_PER_DAY)+1) + "\t" + Utils.slotToTime(i%SLOTS_PER_DAY+1) + "\t" + mainCourse + "\t" + courseInfoMap.get(mainCourse).getCourseTitle() + "\t" + entry.getKey().get(0) + "\t" + entry.getKey().get(1) + "\t" + courseInfoMap.get(mainCourse).getSchool() + "\n");
                         }
                     }
 

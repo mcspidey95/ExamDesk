@@ -133,6 +133,46 @@ public class Utils {
         }
     }
 
+    public static String dayToDate(int day){
+
+        try(BufferedReader reader = new BufferedReader(new FileReader("./metadata/days.txt"))) {
+            String line;
+            int lineNo = 0;
+
+            while ((line = reader.readLine()) != null) {
+                if (lineNo == day-1) {
+                    return line;
+                }
+                lineNo++;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return "Invalid Day";
+    }
+
+    public static String slotToTime(int slot){
+
+        try(BufferedReader reader = new BufferedReader(new FileReader("./metadata/slots.txt"))) {
+            String line;
+            int lineNo = 0;
+
+            while ((line = reader.readLine()) != null) {
+                if (lineNo == slot-1) {
+                    return line;
+                }
+                lineNo++;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return "Invalid Day";
+    }
+
     public static Slots fetchSlots(){
         
         Slots slots = new Slots(13);

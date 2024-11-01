@@ -332,13 +332,13 @@ public class SeatingArrangement {
 
                 if(!ENDTERM_MODE){
 
-                    writer.write(((slotIndex/SLOTS_PER_DAY)+1) + "\t" + (slotIndex%SLOTS_PER_DAY+1) + "\t" + room.getLocationId() + "\t" + invigilatorId + "\t" + invigilatorName + "\t" + invigilatorDept + "\n");
+                    writer.write(Utils.dayToDate((slotIndex/SLOTS_PER_DAY)+1) + "\t" + Utils.slotToTime(slotIndex%SLOTS_PER_DAY+1) + "\t" + room.getLocationId() + "\t" + invigilatorId + "\t" + invigilatorName + "\t" + invigilatorDept + "\n");
                 }
                 else{
                     String relieverId = reliever.substring(0, reliever.indexOf("/"));
                     String relieverName = reliever.substring(reliever.indexOf("/")+1);
 
-                    writer.write(((slotIndex/SLOTS_PER_DAY)+1) + "\t" + (slotIndex%SLOTS_PER_DAY+1) + "\t" + room.getLocationId() + "\t" + invigilatorId + "\t" + invigilatorName + "\t" + invigilatorDept + "\t" + relieverId + "\t" + relieverName + "\n");
+                    writer.write(Utils.dayToDate((slotIndex/SLOTS_PER_DAY)+1) + "\t" + Utils.slotToTime(slotIndex%SLOTS_PER_DAY+1) + "\t" + room.getLocationId() + "\t" + invigilatorId + "\t" + invigilatorName + "\t" + invigilatorDept + "\t" + relieverId + "\t" + relieverName + "\n");
                 }
             }
 
@@ -445,7 +445,7 @@ public class SeatingArrangement {
                             if (course.equals(courseCode)) {
                                 String courseName = courseInfoMap.get(courseCode).getCourseTitle();
 
-                                writer.write(((i/3)+1) + "\t" + (i%3+1) + "\t" + roomNo + "\t" + rollNo + "\t" + name + "\t" + seatNo + "\t" + courseCode + "\t" + courseName + "\n");
+                                writer.write(Utils.dayToDate((i/3)+1) + "\t" + Utils.slotToTime(i%3+1) + "\t" + roomNo + "\t" + rollNo + "\t" + name + "\t" + seatNo + "\t" + courseCode + "\t" + courseName + "\n");
                             }
                         }
                     }
