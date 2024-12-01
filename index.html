@@ -7,38 +7,36 @@
     <title>Exam Desk</title>
     <style>
         @font-face {
-    font-family: 'Iosevka';
-    src: url('fonts/IosevkaTermSlabNerdFontMono-Bold.ttf');
-    font-weight: normal;
-    font-style: normal;
-}
+            font-family: 'Iosevka';
+            src: url('fonts/IosevkaTermSlabNerdFontMono-Bold.ttf');
+            font-weight: normal;
+            font-style: normal;
+        }
         body {
             font-family: 'Iosevka', sans-serif;
-            background-color: #0d0d1f; 
+            background-color: white;
+            color: black;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            color: white;
         }
 
         .container {
             text-align: center;
             margin-top: 250px;
-      
         }
 
         h1 {
             font-size: 8rem;
             font-weight: bold;
-            color: #af6bff;
+            color: black;
             position: absolute; 
             top: 50px; 
             left: 50%; 
             transform: translateX(-50%); 
-           
         }
 
         .buttons-container {
@@ -53,10 +51,11 @@
             padding: 20px;
             border: none;
             border-radius: 10px;
-            background-color: #2c2c6c;
-            color: white;
+            background-color: #f8f8f8;
+            color: black;
+            text-decoration: none;
             cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s ease;
+            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
             margin: 15px;
             width: 245px; 
             height: 225px; 
@@ -64,11 +63,12 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .button:hover {
             transform: scale(1.05);
-            background-color: #432fa6;
+            background-color: #e0e0e0;
         }
 
         .button img {
@@ -76,31 +76,20 @@
             height: 72px; 
             margin-bottom: 20px;
         }
-
-       
-        .button-icon {
-            width: 40px;
-            height: 40px;
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>ExamDesk</h1>
         <div class="buttons-container">
-            <button class="button">
+            <a href="timetable.html" class="button">
                 <img src="calendar.png" alt="Exam Timetable">
                 Generate Timetable
-            </button>
-            <button class="button">
+            </a>
+            <a href="seating.html" class="button">
                 <img src="chairs.png" alt="Seating Arrangement">
                 Seating Arrangement
-            </button>
-            <button class="button">
-                <img src="tickets.png" alt="Hall Ticket">
-                Hall Ticket Generator
-            </button>
+            </a>
         </div>
     </div>
 </body>
