@@ -10,8 +10,8 @@ app.whenReady().then(main);
 
 function main() {
     const window = new BrowserWindow({
-        width: 800, 
-        height: 600, 
+        width: 1200, 
+        height: 700, 
         show: false,
         autoHideMenuBar: true,
         webPreferences: {
@@ -23,7 +23,7 @@ function main() {
     window.once('ready-to-show', window.show);
 
     if (isDev) {
-        window.webContents.openDevTools();
+        //window.webContents.openDevTools();
     }
 }
 

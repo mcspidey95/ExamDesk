@@ -1,114 +1,178 @@
 <script>
-	let version;
-	import ExamTimetable from './B_ExamTimetable.svelte';
-	import SeatingArrangement from './B_SeatingArrangement.svelte';
-    let currentView = 'home'; // Track the current view
+  import { onMount } from 'svelte';
+  import ExamTimetable from './B_ExamTimetable.svelte';
+  import SeatingArrangement from './B_SeatingArrangement.svelte';
 
-	const get_version = async () => {
-		version = await api.GetVersion();
-	};
+  let version;
+  let currentView = 'home'; // Track the current view
 
-	get_version();
+  const get_version = async () => {
+    version = await api.GetVersion();
+  };
 
-	window.api.runJavaFile('functions/ExamTimetable.class');
+  get_version();
+
+  let typingText = "ExamDesk";
+  let displayedText = "";
+  let cursorVisible = true;
+  let currentIndex = 0;
+
+  onMount(() => {
+    const typeEffect = setInterval(() => {
+      if (currentIndex < typingText.length) {
+        displayedText += typingText[currentIndex];
+        currentIndex++;
+      } else {
+        clearInterval(typeEffect);
+      }
+    }, 150);
+
+    setInterval(() => {
+      cursorVisible = !cursorVisible;
+    }, 500);
+  });
 </script>
 
 <svelte:head>
-    <title>ExamDesk v{version}</title>
+  <title>ExamDesk v{version}</title>
 </svelte:head>
 
-<main>
-	{#if currentView === 'home'}
-    <div class="container">
-        <h1>ExamDesk</h1>
-        <div class="buttons-container">
-            <button class='button' on:click={() => currentView = 'timetable'}>
-				<img src="images/timetable.png" alt="Timetable" />
-                Exam Timetable
-            </button>
-			<button class='button' on:click={() => currentView = 'seating'}>
-				<img src="images/seating.png" alt="Seating Arrangement" />
-                Seating Arrangement
-            </button>
-        </div>
-    </div>
-	{:else if currentView === 'timetable'}
-		<ExamTimetable />
-	{:else if currentView === 'seating'}
-		<SeatingArrangement />
-	{/if}
-</main>
-
 <style>
-	main {
-        font-family: 'Iosevka', sans-serif;
-        background-color: white;
-        color: black;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-	}
+  /* General Styling */
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: "DMSerif", 'Times New Roman';
+    background-color: #f4f6f8;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Align items towards the top */
+    min-height: 100vh;
+    overflow: hidden;
+  }
 
-    @font-face {
-        font-family: 'Iosevka';
-        src: url('fonts/IosevkaTermSlabNerdFontMono-Bold.ttf');
-        font-weight: normal;
-        font-style: normal;
+  /* Header Styling */
+  .header {
+    font-size: 7vw; /* Larger for professional look */
+    color: #2c3e50;
+    margin-top: 9rem; /* Add spacing at the top */
+    text-align: center;
+  }
+
+  .cursor {
+    font-size: 6vw;
+    color: #2c3e50;
+    visibility: hidden;
+    position: relative; /* Allows adjustment with top */
+    top: -0.1em; /* Moves the cursor slightly upward */
+  }
+
+  .cursor.visible {
+    visibility: visible;
+  }
+
+  /* Buttons Styling */
+  .buttons-container {
+    margin-top: 5rem; /* Space between header and buttons */
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .sqircle-button {
+  display: flex;
+  flex-direction: column; /* Stack image and text vertically */
+  align-items: center;
+  justify-content: center;
+  width: 20vw; /* Adjusted size for accommodating text */
+  height: 20vw;
+  max-width: 180px;
+  max-height: 180px;
+  min-width: 90px;
+  min-height: 90px;
+  border-radius: 15%;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.button-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem; /* Space between the icon and text */
+}
+
+.sqircle-button img {
+  width: 60%; /* Resized to fit with text */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.sqircle-button span {
+  font-size: 1.05rem; /* Adjust text size */
+  color: #2c3e50; /* Match the design */
+  text-align: center;
+}
+
+
+  .sqircle-button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .header {
+      font-size: 7vw;
     }
 
-    .container {
-        text-align: center;
-        margin-top: 250px;
+    .sqircle-button {
+      width: 20vw;
+      height: 20vw;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .header {
+      font-size: 8vw;
     }
 
-    h1 {
-        font-size: 8rem;
-        font-weight: bold;
-        color: black;
-        position: absolute;
-        top: 50px;
-        left: 50%;
-        transform: translateX(-50%);
+    .sqircle-button {
+      width: 25vw;
+      height: 25vw;
     }
-
-    .buttons-container {
-        display: flex;
-        justify-content: center;
-        margin-top: 100px;
-    }
-
-    .button {
-        font-family: 'Iosevka', sans-serif;
-        font-size: 1.5rem;
-        padding: 20px;
-        border: none;
-        border-radius: 10px;
-        background-color: #f8f8f8;
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-        transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-        margin: 15px;
-        width: 245px;
-        height: 225px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .button:hover {
-        transform: scale(1.05);
-        background-color: #e0e0e0;
-    }
-
-    .button img {
-        width: 72px;
-        height: 72px;
-        margin-bottom: 20px;
-    }
+  }
 </style>
+
+{#if currentView === 'home'}
+<body>
+  <!-- Landing Page -->
+  <div class="header">
+    <span>{displayedText}<span class="cursor {cursorVisible ? 'visible' : ''}">|</span></span>
+    
+  </div>
+
+  <div class="buttons-container">
+    <div class="sqircle-button" on:click={() => currentView = 'exam-timetable'}>
+      <div class="button-content">
+        <img src="images/timetable.png" alt="Timetable" />
+        <span>Exam Timetable</span>
+      </div>
+    </div>
+    <div class="sqircle-button" on:click={() => currentView = 'seating-arrangement'}>
+      <div class="button-content">
+        <img src="images/seating.png" alt="Seating" />
+        <span>Seating Arrangement</span>
+      </div>
+    </div>
+  </div>
+</body>
+{:else if currentView === 'exam-timetable'}
+  <ExamTimetable />
+{:else if currentView === 'seating-arrangement'}
+  <SeatingArrangement />
+{/if}
