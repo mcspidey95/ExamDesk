@@ -17,7 +17,7 @@ import java.util.Comparator;
 public class Utils {
 
     public static void fetchParameters(){
-        try (BufferedReader reader = new BufferedReader(new FileReader("./metadata/parameters.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("./functions/metadata/parameters.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(": ");
@@ -61,7 +61,7 @@ public class Utils {
 
     public static void fetchStudentData(List<StudentRecord> studentRecords, Map<String, CourseInfo> courseInfoMap, Map<String, StudentCourses> studentCoursesMap, Map<List<String>, StudentCourses> programMap){
 
-        String filePath = "./sources/StudentRegistration.txt";
+        String filePath = "./functions/sources/StudentRegistration.txt";
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -82,7 +82,7 @@ public class Utils {
             e.printStackTrace();
         }
 
-        try (BufferedReader br = new BufferedReader(new FileReader("./sources/FinalCourseData.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("./functions/sources/FinalCourseData.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] details = line.split("\t");
@@ -135,7 +135,7 @@ public class Utils {
 
     public static String dayToDate(int day){
 
-        try(BufferedReader reader = new BufferedReader(new FileReader("./metadata/days.txt"))) {
+        try(BufferedReader reader = new BufferedReader(new FileReader("./functions/metadata/days.txt"))) {
             String line;
             int lineNo = 0;
 
@@ -155,7 +155,7 @@ public class Utils {
 
     public static String slotToTime(int slot){
 
-        try(BufferedReader reader = new BufferedReader(new FileReader("./metadata/slots.txt"))) {
+        try(BufferedReader reader = new BufferedReader(new FileReader("./functions/metadata/slots.txt"))) {
             String line;
             int lineNo = 0;
 
@@ -177,7 +177,7 @@ public class Utils {
         
         Slots slots = new Slots(13);
         
-        try (BufferedReader reader = new BufferedReader(new FileReader("./metadata/exam_slots.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("./functions/metadata/exam_slots.txt"))) {
             String line;
             int lineNo = 0;
     

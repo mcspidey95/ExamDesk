@@ -1,5 +1,8 @@
 <script>
     import { onMount } from 'svelte';
+    import LandingPage from './App.svelte';
+
+    let currentView = 'timetable';
   
     let sidebarOpen = false;
     let popupVisible = false;
@@ -21,7 +24,7 @@
     }
   
     function goBack() {
-      window.history.back();
+      currentView = 'home';
     }
   
     function saveInputs() {
@@ -333,6 +336,7 @@
         }
   </style>
   
+  {#if currentView === 'timetable'}
   <div>
     <!-- Navigation Button -->
     <button class="nav-btn" on:click={toggleSidebar}>
@@ -444,4 +448,7 @@
       </div>
     </div>
   </div>
+  {:else if currentView === 'home'}
+    <LandingPage />
+  {/if}
   

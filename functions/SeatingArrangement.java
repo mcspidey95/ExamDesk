@@ -30,7 +30,7 @@ public class SeatingArrangement {
     
     public static void generateSeatingArrangement(Slots slots, Map<String, StudentCourses> studentCoursesMap, int slotIndex, List<Room> rooms, Map<String, List<String>> seatingArrangement){
 
-        try (BufferedReader brrr = new BufferedReader(new FileReader("./sources/Rooms.txt"))) {
+        try (BufferedReader brrr = new BufferedReader(new FileReader("./functions/sources/Rooms.txt"))) {
             String line;
 
             brrr.readLine();
@@ -321,7 +321,7 @@ public class SeatingArrangement {
             }
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("./documents/Invigilator_Assignment.tsv", true))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("./functions/documents/Invigilator_Assignment.tsv", true))) {
 
             for(InvigilatorRoom room: invigilatorRooms){
                 String invigilator = room.getInvigilator();
@@ -365,7 +365,7 @@ public class SeatingArrangement {
         Utils.fetchStudentData(studentRecords, courseInfoMap, studentCoursesMap, programMap);
 
         List<Staff> invigilators = new ArrayList<>();
-        try (BufferedReader brrr = new BufferedReader(new FileReader("./sources/Invigilators.txt"))) {
+        try (BufferedReader brrr = new BufferedReader(new FileReader("./functions/sources/Invigilators.txt"))) {
             String line;
 
             brrr.readLine();
@@ -392,7 +392,7 @@ public class SeatingArrangement {
             e.printStackTrace();
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("./documents/Invigilator_Assignment.tsv"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("./functions/documents/Invigilator_Assignment.tsv"))) {
 
             if(!ENDTERM_MODE){
                 writer.write("Day" + "\t" + "Slot" + "\t" +  "Room" + "\t" +  "Invigilator ID" + "\t" +  "Invigilator Name" + "\t" +  "Invigilator Dept" + "\n");
@@ -406,7 +406,7 @@ public class SeatingArrangement {
             e.printStackTrace();
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("./documents/Seating_Arrangement.tsv"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("./functions/documents/Seating_Arrangement.tsv"))) {
 
             // date, slot, roomNo, rollNo, Name, SeatNo, CourseCode, CourseName
             writer.write("Day" + "\t" + "Slot" + "\t" +  "RoomNo" + "\t" +  "Student RollNo" + "\t" +  "Student Name" + "\t" +  "SeatNo" + "\t" +  "CourseCode" +  "\t" +  "CourseName" + "\n");
@@ -426,7 +426,7 @@ public class SeatingArrangement {
             assignInvigilators(seatingArrangement, invigilators, invigilatorRooms, i, slots);
 
             // Print the seating arrangement
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter("./documents/Seating_Arrangement.tsv", true))) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter("./functions/documents/Seating_Arrangement.tsv", true))) {
                 int[] seatRange = {1,3,5,6,8,10,11,13,15,16,18,20,21,23,25,26,28,20,31,33,35,36,38,40,41,43,45,46,48,50,51,53,55,56,58,60,61,63,65,66,68,70};
                 
                 for (Map.Entry<String, List<String>> entry : seatingArrangement.entrySet()) {

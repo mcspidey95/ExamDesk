@@ -10,7 +10,7 @@
 
 	get_version();
 
-	window.api.runJavaFile('functions/ExamDesk1.class');
+	window.api.runJavaFile('functions/ExamTimetable.class');
 </script>
 
 <svelte:head>

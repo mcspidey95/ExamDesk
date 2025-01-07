@@ -32,7 +32,7 @@ public class ExamTimetable {
         int clashedCourses = 0;
 
         ArrayList<String> blacklist = new ArrayList<>();
-        try (BufferedReader brr = new BufferedReader(new FileReader("./metadata/blacklist.txt"))) {
+        try (BufferedReader brr = new BufferedReader(new FileReader("./functions/metadata/blacklist.txt"))) {
             String line;
             while ((line = brr.readLine()) != null) {
                 blacklist.add(line);
@@ -229,7 +229,7 @@ public class ExamTimetable {
         System.out.println("No. of days: " + ((slots.getNumberOfSlots() + (SLOTS_PER_DAY-1)) / SLOTS_PER_DAY));
         //System.out.println("LeftOverCourses: " + leftoverCourses);
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("./documents/Exam_Timetable.tsv"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("./functions/documents/Exam_Timetable.tsv"))) {
             //for each key in programMap get the courses
             writer.write("Day" + "\t" + "Slot" + "\t" +  "CourseCode" + "\t" +  "CourseTitle" + "\t" +  "Program" + "\t" +  "Semester" + "\t" +  "School" + "\n");
 
@@ -253,7 +253,7 @@ public class ExamTimetable {
         }
 
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("./metadata/exam_slots.txt"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("./functions/metadata/exam_slots.txt"))) {
               
             for (int i = 0; i < slots.getNumberOfSlots(); i++) {
                 //if not empty
