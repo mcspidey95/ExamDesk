@@ -41,24 +41,43 @@
   /* General Styling */
   body {
     margin: 0;
-    padding: 0;
     font-family: "DMSerif", 'Times New Roman';
     background-color: #f4f6f8;
     color: #333;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start; /* Align items towards the top */
-    min-height: 100vh;
+    justify-content: center; /* Align items towards the top */
+    min-height: 100v;
     overflow: hidden;
   }
+
+  .container {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Content takes 1 fraction, banner is auto-sized */
+  height: 100%;
+  width: 100%;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  user-select: none;
+}
 
   /* Header Styling */
   .header {
     font-size: 7vw; /* Larger for professional look */
     color: #2c3e50;
+    top : 0;
     margin-top: 9rem; /* Add spacing at the top */
     text-align: center;
+    text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: default;
   }
 
   .cursor {
@@ -67,6 +86,8 @@
     visibility: hidden;
     position: relative; /* Allows adjustment with top */
     top: -0.1em; /* Moves the cursor slightly upward */
+    text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: default;
   }
 
   .cursor.visible {
@@ -82,6 +103,27 @@
     justify-content: center;
   }
 
+  .banner {
+  background-color: #2b2d42;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+  width: 100%; /* Automatically takes the remaining 1/3rd */
+}
+
+.banner img {
+  background-size: contain;
+  max-width: 100%;
+  height: 100%;
+  transition: transform 0.2s ease-in-out;
+}
+
+.banner img:hover{
+  transform: scale(1.05);
+}
+
   .sqircle-button {
   display: flex;
   flex-direction: column; /* Stack image and text vertically */
@@ -93,6 +135,7 @@
   max-height: 180px;
   min-width: 90px;
   min-height: 90px;
+  opacity: 0.9;
   border-radius: 15%;
   background-color: #ffffff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -151,23 +194,32 @@
 {#if currentView === 'home'}
 <body>
   <!-- Landing Page -->
-  <div class="header">
-    <span>{displayedText}<span class="cursor {cursorVisible ? 'visible' : ''}">|</span></span>
-    
-  </div>
+  <div class="container">
+    <!-- Main Content -->
+    <div class="content">
+      <div class="header">
+        <span>{displayedText}<span class="cursor {cursorVisible ? 'visible' : ''}">|</span></span>
+      </div>
 
-  <div class="buttons-container">
-    <div class="sqircle-button" on:click={() => currentView = 'exam-timetable'}>
-      <div class="button-content">
-        <img src="images/timetable.png" alt="Timetable" />
-        <span>Exam Timetable</span>
+      <div class="buttons-container">
+        <div class="sqircle-button" on:click={() => currentView = 'exam-timetable'}>
+          <div class="button-content">
+            <img src="images/timetable.png" alt="Timetable" />
+            <span>Exam Timetable</span>
+          </div>
+        </div>
+        <div class="sqircle-button" on:click={() => currentView = 'seating-arrangement'}>
+          <div class="button-content">
+            <img src="images/seating.png" alt="Seating" />
+            <span>Seating Arrangement</span>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="sqircle-button" on:click={() => currentView = 'seating-arrangement'}>
-      <div class="button-content">
-        <img src="images/seating.png" alt="Seating" />
-        <span>Seating Arrangement</span>
-      </div>
+
+    <!-- Vertical Banner -->
+    <div class="banner">
+      <img src="images/banner.jpg" alt="Banner" />
     </div>
   </div>
 </body>
