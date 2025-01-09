@@ -7,14 +7,46 @@
   let fileInput1;
   let fileInput2;
 	let isDragActive = false;
-	let file = null;
+	let StudentDataFile1 = null;
+  let StudentDataFile2 = null;
+  let tsvData = ""; // Placeholder for the loaded TSV data
+  let parsedData = [];
+  let headers = [];
+  let content = [];
+  let rowCount = 0;
+  let columnCount = 0;
   
-	function onDrop(e) {
+	function onDrop1(e) {
 	  e.preventDefault();
 	  e.stopPropagation();
 	  isDragActive = false;
 	  if (e.target.closest('.dropzone') && e.dataTransfer.files && e.dataTransfer.files[0]) {
-		file = e.dataTransfer.files[0];
+		  StudentDataFile1 = e.dataTransfer.files[0];
+
+      const fileExtension = StudentDataFile1.name.split('.').pop().toLowerCase();
+
+    // Restrict to .txt or .tsv files
+      if (StudentDataFile1 && (fileExtension !== 'txt')) {
+        alert('Please drop a .txt file');
+        StudentDataFile1 = null;
+      }
+	  }
+	}
+
+  function onDrop2(e) {
+	  e.preventDefault();
+	  e.stopPropagation();
+	  isDragActive = false;
+	  if (e.target.closest('.dropzone') && e.dataTransfer.files && e.dataTransfer.files[0]) {
+		  StudentDataFile2 = e.dataTransfer.files[0];
+
+      const fileExtension = StudentDataFile2.name.split('.').pop().toLowerCase();
+
+      // Restrict to .txt or .tsv files
+      if (StudentDataFile2 && (fileExtension !== 'txt')) {
+        alert('Please drop a .txt file');
+        StudentDataFile2 = null;
+      }
 	  }
 	}
   
@@ -30,18 +62,64 @@
 	  isDragActive = false;
 	}
   
-	function onFileInputChange(e) {
+	function onFileInputChange1(e) {
 	  if (e.target.files && e.target.files[0]) {
-		file = e.target.files[0];
+		StudentDataFile1 = e.target.files[0];
+	  }
+	}
+
+  function onFileInputChange2(e) {
+	  if (e.target.files && e.target.files[0]) {
+		StudentDataFile2 = e.target.files[0];
 	  }
 	}
   
-	function removeFile() {
-	  file = null;
-	  if (fileInput) {
-		fileInput.value = '';
+	function removeFile1() {
+	  StudentDataFile1 = null;
+	  if (fileInput1) {
+		fileInput1.value = '';
 	  }
 	}
+
+  function removeFile2() {
+	  StudentDataFile2 = null;
+	  if (fileInput2) {
+		fileInput2.value = '';
+	  }
+	}
+
+  async function loadTSVFile(filePath) {
+    try {
+      const data = await window.api.readTsvFile(filePath);
+      tsvData = data;
+      parseTSVData();
+    } catch (error) {
+      console.error("Error reading TSV file:", error);
+    }
+  }
+
+  // Parse the loaded TSV data
+  function parseTSVData() {
+    parsedData = tsvData.trim().split("\n").map((row) => row.split("\t"));
+    headers = parsedData[0] || [];
+    content = parsedData.slice(1);
+	  columnCount = headers.length;
+    rowCount = content.length;
+  }
+
+  async function generate() {
+    if (StudentDataFile1) {
+      try {
+        // Call the main process 'generate' function via IPC
+        const result = await window.api.saveUploadedFile(StudentDataFile1, "testFile", "functions/metadata");
+        console.log(result); // Success message
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    } else {
+      console.error('No file selected');
+    }
+  }
   
 	onMount(() => {
 	  window.addEventListener('dragover', onDragOver);
@@ -58,6 +136,8 @@
   }).catch((err) => {
     console.error(err);
   });
+
+  loadTSVFile("functions/documents/Exam_Timetable.tsv");
 </script>
 
 {#if currentView === 'timetable'}
@@ -91,12 +171,13 @@
               on:dragenter={onDragOver}
               on:dragleave={onDragLeave}
               on:dragover={onDragOver}
-              on:drop={onDrop}
+              on:drop={onDrop1}
             >
               <input
                 type="file"
                 bind:this={fileInput1}
-                on:change={onFileInputChange}
+                on:change={onFileInputChange1}
+                accept=".txt"
                 style="display: none;"
               />
               <div class="icon">
@@ -110,12 +191,12 @@
                 {/if}
               </p>
             </div>
-            {#if file}
+            {#if StudentDataFile1}
               <div class="file-info">
                 <div class="file-details">
-                  <span class="file-name">{file.name}</span>
+                  <span class="file-name">{StudentDataFile1.name}</span>
                 </div>
-                <button on:click={removeFile} class="remove-button">
+                <button on:click={removeFile1} class="remove-button">
                   Remove
                 </button>
               </div>
@@ -133,12 +214,13 @@
               on:dragenter={onDragOver}
               on:dragleave={onDragLeave}
               on:dragover={onDragOver}
-              on:drop={onDrop}
+              on:drop={onDrop2}
             >
               <input
                 type="file"
                 bind:this={fileInput2}
-                on:change={onFileInputChange}
+                on:change={onFileInputChange2}
+                accept=".txt"
                 style="display: none;"
               />
               <div class="icon">
@@ -152,22 +234,22 @@
                 {/if}
               </p>
             </div>
-          </div>
-            {#if file}
+            {#if StudentDataFile2}
               <div class="file-info">
                 <div class="file-details">
-                  <span class="file-name">{file.name}</span>
+                  <span class="file-name">{StudentDataFile2.name}</span>
                 </div>
-                <button on:click={removeFile} class="remove-button">
+                <button on:click={removeFile2} class="remove-button">
                   Remove
                 </button>
               </div>
             {/if}
+          </div>
         </div>
 
         <div>
           <div class="generate-container">
-            <a href="#_" class="button">
+            <a href="#_" class="button" on:click={generate}>
               <span class="hover-bg"></span>
               <span class="text">Generate</span>
             </a>
@@ -182,7 +264,34 @@
     <div class="right-section">
       <div class="a4-container">
         <!-- Content inside the A4 container -->
+        {#if !tsvData}
         <p>Output will be displayed here!</p>
+        {:else}
+        <div class="tsv-container scroll_enabled">
+          <table>
+            <thead>
+            <tr>
+              {#each headers as header}
+              <th>{header}</th>
+              {/each}
+            </tr>
+            </thead>
+            <tbody>
+            {#each content as row}
+              <tr>
+              {#each row as cell}
+                <td>{cell}</td>
+              {/each}
+              </tr>
+            {/each}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="info-box">
+          <p>Rows: {rowCount}, Cols: {columnCount}</p>
+        </div>
+        {/if}
       </div>
       
     </div>

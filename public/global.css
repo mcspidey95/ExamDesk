@@ -30,9 +30,9 @@ body {
 	justify-content: center; /* Center content vertically */
 	align-items: center; /* Center content horizontally */
 	box-sizing: border-box; /* Ensure padding fits within the bounds */
-  }
+}
   
-  .dropzone {
+.dropzone {
 	width: 100%;
 	height: 100%;
 	border: 2px dashed #ccc;
@@ -46,28 +46,28 @@ body {
 	justify-content: center; /* Center content vertically */
 	align-items: center; /* Center content horizontally */
 	box-sizing: border-box; /* Prevent padding from increasing dimensions */
-  }
+}
   
-  .dropzone:hover,
-  .dropzone.active {
+.dropzone:hover,
+.dropzone.active {
 	border-color: #2c3e50;
 	background-color: #2c3e501a;
-  }
+}
   
-  .icon img {
+.icon img {
 	width: 48px;
 	height: 48px;
 	margin-bottom: 1rem;
 	color: #2c3e50;
-  }
+}
   
-  .dropzone p {
+.dropzone p {
 	margin: 0;
 	font-size: 1rem;
 	color: #666;
-  }
+}
   
-  .file-info {
+.file-info {
 	margin-top: 1rem;
 	display: flex;
 	justify-content: space-between;
@@ -78,54 +78,74 @@ body {
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	width: 100%; /* Ensure it fills the dropzone width */
 	box-sizing: border-box;
-  }
+}
   
-  .file-details {
+.file-details {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 	width: 100%;
-  }
+}
   
-  .file-icon {
+.file-icon {
 	width: 20px;
 	height: 20px;
 	color: #2c3e50;
-  }
+}
   
-  .file-name {
+.file-name {
 	font-size: 0.875rem;
 	color: #333;
 	word-wrap: break-word; /* Prevent long file names from overflowing */
-  }
+}
   
-  .remove-button {
+.remove-button {
 	background: none;
 	border: none;
 	cursor: pointer;
 	padding: 0;
-	color: #dc3545;
-	transition: color 0.3s ease;
-  }
+	color:rgb(133, 14, 26);
+	font-family: "DMSerif";
+	transition: color 0.2s ease;
+}
   
-  .remove-button:hover {
+.remove-button:hover {
 	color: #c82333;
-  }
+	animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+	0% {
+	  transform: translateX(0); /* Start at original position */
+	}
+	25% {
+	  transform: translateX(-5px); /* Move slightly left */
+	}
+	50% {
+	  transform: translateX(5px); /* Move slightly right */
+	}
+	75% {
+	  transform: translateX(-5px); /* Move slightly left */
+	}
+	100% {
+	  transform: translateX(0); /* Return to original position */
+	}
+}
   
-  .remove-button img {
+.remove-button img {
 	width: 16px;
 	height: 16px;
-  }
+}
 
-  .generate-container {
+.generate-container {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	height: 10rem;
 	width: 100%;
-  }
+}
 
-  .button {
+.button {
 	position: relative;
 	display: inline-flex;
 	align-items: center;
@@ -138,12 +158,12 @@ body {
 	border-radius: 0.25rem;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 	overflow: hidden;
-	transition: color 0.3s ease-in-out;
+	transition: color 0.3s ease-in-out, transform 0.2s ease-in-out;
 	text-decoration: none;
 	z-index: 1;
-  }
+}
 
-  .hover-bg {
+.hover-bg {
 	position: absolute;
 	width: 12rem;
 	height: 12rem;
@@ -151,24 +171,29 @@ body {
 	border-radius: 50%;
 	transform: translate(-75%, 47%) rotate(-40deg);
 	transition: transform 0.2s ease-out, margin 0.2s ease-out;
-  }
+}
   
-  .button:hover .hover-bg {
+.button:hover .hover-bg {
 	transform: rotate(40deg) scale(5);
-  }
+}
 
-  .button:hover .text {
+.button:hover .text {
 	color: white;
-  }
+}
 
-  .text {
+.button:hover {
+	transform: scale(1.05);
+}
+
+.text {
 	font-size: large;
 	position: relative;
 	z-index: 2;
 	transition: color 0.2s ease-in-out;
-  }
+}
 
-  .a4-container {
+.a4-container {
+	position: relative;
 	height: 100%; /* Full height of the parent container */
 	background-color: white; /* Fallback color */
 	background-size: cover; /* Ensure the background covers the container */
@@ -179,5 +204,79 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-  }
-  
+	overflow: hidden;
+}
+
+.tsv-container {
+	padding: 10px;
+	max-height: 97%;
+	overflow-y: auto;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+th, td {
+	border: 1px solid #ddd;
+	padding: 8px;
+	text-align: left;
+}
+
+th {
+	background-color: #f2f2f2;
+	font-weight: bold;
+}
+
+tr:nth-child(even) {
+	background-color: #f9f9f9;
+}
+
+.info-box {
+	position: absolute;
+	bottom: 15px;
+	right: 15px;
+	padding: 5px;
+	border-radius: 4px;
+	font-size: 12px;
+	background-color: #f8f9fa;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	opacity: 0.95;
+	box-sizing: border-box;
+	z-index: 1000;
+}
+
+
+
+.scroll_enabled::-webkit-scrollbar {
+    width: 10px; /* Adjust scrollbar width */
+    height: 10px; /* Adjust scrollbar height */
+}
+
+.scroll_enabled::-webkit-scrollbar-corner {
+    background: rgba(0, 0, 0, 0); /* Transparent corners */
+}
+
+.scroll_enabled::-webkit-scrollbar-thumb {
+    background-color: #888; /* Dark grey for the handle */
+    border-radius: 5px; /* Rounded corners for a modern look */
+    border: 2px solid rgba(0, 0, 0, 0); /* Padding effect around the thumb */
+    background-clip: content-box; /* Ensures proper padding appearance */
+    min-width: 32px; /* Minimum size for the thumb */
+    min-height: 32px; /* Minimum size for the thumb */
+}
+
+.scroll_enabled::-webkit-scrollbar-thumb:hover {
+    background-color: #2c3e50; /* Darker grey on hover */
+}
+
+.scroll_enabled::-webkit-scrollbar-track {
+    background-color: #f0f0f0; /* Light grey background for the track */
+    border-radius: 5px; /* Rounded track corners */
+	margin: 8px 8px;
+}
+
+.scroll_enabled::-webkit-scrollbar-track:hover {
+    background-color: #2c3e501a; /* Slightly darker track on hover */
+}

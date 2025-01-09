@@ -87,3 +87,51 @@ ipcMain.handle('write-txt-file', (event, filePath, content) => {
         });
     });
 });
+
+ipcMain.handle('read-tsv-file', async (event, filePath) => {
+    try {
+        // Explicitly use fs.promises.readFile
+        const data = await fs.promises.readFile(filePath, 'utf8');
+        return data;
+    } catch (err) {
+        console.error("Error reading TSV file:", err);
+        throw err;
+    }
+});
+
+ipcMain.handle('save-uploaded-file', (event, file, newFileName, destinationPath) => {
+    return new Promise((resolve, reject) => {
+      try {
+        if (!file || !newFileName || !destinationPath) {
+          throw new Error('Invalid parameters');
+        }
+  
+        // Ensure destination directory exists
+        if (!fs.existsSync(destinationPath)) {
+          fs.mkdirSync(destinationPath, { recursive: true });
+        }
+  
+        // Create the new file path by appending the new file name
+        const extname = path.extname(file.name); // Get the file extension
+        const newFilePath = path.join(destinationPath, `${newFileName}${extname}`);
+  
+        // Create a writable stream to the new file
+        const fileStream = fs.createWriteStream(newFilePath);
+  
+        // Use file stream to write file content
+        const readerStream = file.stream();  // This is available from the File API
+  
+        readerStream.pipe(fileStream);
+  
+        fileStream.on('finish', () => {
+          resolve('File successfully saved!');
+        });
+  
+        fileStream.on('error', (err) => {
+          reject(`Failed to save file: ${err.message}`);
+        });
+      } catch (error) {
+        reject(`Error: ${error.message}`);
+      }
+    });
+  });

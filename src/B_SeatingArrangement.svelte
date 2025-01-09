@@ -1,25 +1,39 @@
 <script>
-	export let tsvData = `Name	Age	City	Occupation
-John Doe	32	New York	Software Engineer
-Jane Smith	28	San Francisco	Designer
-Mike Johnson	45	Chicago	Manager
-Emily Brown	39	Los Angeles	Teacher
-David Lee	52	Boston	Doctor
-Sarah Wilson	31	Seattle	Marketing Specialist
-Tom Davis	41	Austin	Entrepreneur
-Lisa Taylor	36	Denver	Accountant
-Chris Anderson	29	Miami	Sales Representative
-Karen Martinez	47	Phoenix	Lawyer`;
+  let currentView = 'seatingArrangement';  
   
-	// Parse TSV data into an array of arrays
-	$: parsedData = tsvData.trim().split('\n').map(row => row.split('\t'));
-  
-	// Extract headers (first row) and content (remaining rows)
-	$: headers = parsedData[0] || [];
-	$: content = parsedData.slice(1);
+  let tsvData = ""; // Placeholder for the loaded TSV data
+  let parsedData = [];
+  let headers = [];
+  let content = [];
+  let rowCount = 0;
+  let columnCount = 0;
+
+  // Function to load the TSV file from a specific file path
+  async function loadTSVFile(filePath) {
+    try {
+      const data = await window.api.readTsvFile(filePath);
+      tsvData = data;
+      parseTSVData();
+    } catch (error) {
+      console.error("Error reading TSV file:", error);
+    }
+  }
+
+  // Parse the loaded TSV data
+  function parseTSVData() {
+    parsedData = tsvData.trim().split("\n").map((row) => row.split("\t"));
+    headers = parsedData[0] || [];
+    content = parsedData.slice(1);
+	columnCount = headers.length;
+    rowCount = content.length;
+  }
+
+  // Example of passing the file path when calling loadTSVFile
+  // You can replace this with the actual path or pass it dynamically
+  loadTSVFile("functions/documents/Exam_Timetable.tsv");
   </script>
   
-  <div class="tsv-container">
+  <div class="tsvViewer scroll_enabled">
 	<table>
 	  <thead>
 		<tr>
@@ -38,17 +52,22 @@ Karen Martinez	47	Phoenix	Lawyer`;
 		{/each}
 	  </tbody>
 	</table>
+
+	<div class="info-box">
+		<p>Rows: {rowCount}</p>
+		<p>Columns: {columnCount}</p>
+	  </div>
   </div>
   
   <style>
-	.tsv-container {
+	.tsvViewer{
 	  background-color: white;
 	  border-radius: 8px;
 	  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 	  margin: 20px;
 	  padding: 20px;
 	  max-height: 80vh;
-	  overflow-y: auto;
+	  overflow: auto;
 	}
   
 	table {
@@ -70,4 +89,21 @@ Karen Martinez	47	Phoenix	Lawyer`;
 	tr:nth-child(even) {
 	  background-color: #f9f9f9;
 	}
+
+	.info-box {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  }
+
+
+
+
   </style>

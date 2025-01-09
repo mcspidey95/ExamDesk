@@ -8,6 +8,10 @@ const WINDOW_API = {
     readTxtFile: (filePath) => ipcRenderer.invoke('read-txt-file', filePath),
 
     writeToTxtFile: (filePath, content) => ipcRenderer.invoke('write-txt-file', filePath, content),
+
+    readTsvFile: (filePath) => ipcRenderer.invoke('read-tsv-file', filePath),
+
+    saveUploadedFile: (file, newFileName, destinationPath) => ipcRenderer.invoke('save-uploaded-file', file, newFileName, destinationPath),
 }
 
 // Expose API to the renderer process (Svelte)
