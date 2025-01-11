@@ -11,7 +11,11 @@ const WINDOW_API = {
 
     readTsvFile: (filePath) => ipcRenderer.invoke('read-tsv-file', filePath),
 
-    saveUploadedFile: (file, newFileName, destinationPath) => ipcRenderer.invoke('save-uploaded-file', file, newFileName, destinationPath),
+    saveTsvFile: (fileName, content) => ipcRenderer.invoke('save-tsv-file', { defaultFileName: fileName, content }),
+
+    saveUploadedFile: (fileData) => ipcRenderer.send('save-file-to-functions', fileData),
+
+    checkAndLoadFile: (fileName) => ipcRenderer.invoke('check-and-load-file', fileName),
 }
 
 // Expose API to the renderer process (Svelte)

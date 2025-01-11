@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const { exec } = require('child_process');
 const { join } = require('path');
 
@@ -30,11 +30,11 @@ function main() {
 ipcMain.handle('get-version', () => app.getVersion());
 
 // Function to run a Java file
-ipcMain.handle('run-java-file', (event, filePath) => {
+ipcMain.handle('run-java-file', async (event, filePath) => {
     console.log('Received file path:', filePath);
     if (!filePath || typeof filePath !== 'string') {
         console.error('Invalid or missing file path:', filePath);
-        return;
+        throw new Error('Invalid file path'); // Throw an error so the renderer knows something went wrong
     }
 
     const absoluteFilePath = path.resolve(filePath);
@@ -42,29 +42,33 @@ ipcMain.handle('run-java-file', (event, filePath) => {
 
     if (!fs.existsSync(absoluteFilePath)) {
         console.error('File does not exist:', absoluteFilePath);
-        return;
+        throw new Error('File does not exist'); // Throw an error if the file isn't found
     }
 
     const fileName = path.basename(absoluteFilePath, '.class');
     const dirPath = path.dirname(absoluteFilePath);
 
-    // Log the command we're running
-    console.log(`Running Java command: java -cp "${dirPath}" ${fileName}`);
+    // Return a Promise that resolves or rejects based on the execution result
+    return new Promise((resolve, reject) => {
+        console.log(`Running Java command: java -cp "${dirPath}" ${fileName}`);
 
-    exec(`java -cp "${dirPath}" ${fileName}`, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`exec error: ${error}`);
-            return;
-        }
+        exec(`java -cp "${dirPath}" ${fileName}`, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Execution error: ${error}`);
+                reject(error); // Reject the promise if there's an error
+                return;
+            }
 
-        // Log both stdout and stderr for more visibility
-        if (stdout) {
-            console.log(`stdout: ${stdout}`);
-        }
+            if (stdout) {
+                console.log(`stdout: ${stdout}`);
+            }
 
-        if (stderr) {
-            console.error(`stderr: ${stderr}`);
-        }
+            if (stderr) {
+                console.error(`stderr: ${stderr}`);
+            }
+
+            resolve(stdout); // Resolve the promise when execution completes
+        });
     });
 });
 
@@ -99,39 +103,72 @@ ipcMain.handle('read-tsv-file', async (event, filePath) => {
     }
 });
 
-ipcMain.handle('save-uploaded-file', (event, file, newFileName, destinationPath) => {
-    return new Promise((resolve, reject) => {
-      try {
-        if (!file || !newFileName || !destinationPath) {
-          throw new Error('Invalid parameters');
-        }
-  
-        // Ensure destination directory exists
-        if (!fs.existsSync(destinationPath)) {
-          fs.mkdirSync(destinationPath, { recursive: true });
-        }
-  
-        // Create the new file path by appending the new file name
-        const extname = path.extname(file.name); // Get the file extension
-        const newFilePath = path.join(destinationPath, `${newFileName}${extname}`);
-  
-        // Create a writable stream to the new file
-        const fileStream = fs.createWriteStream(newFilePath);
-  
-        // Use file stream to write file content
-        const readerStream = file.stream();  // This is available from the File API
-  
-        readerStream.pipe(fileStream);
-  
-        fileStream.on('finish', () => {
-          resolve('File successfully saved!');
+ipcMain.handle('save-tsv-file', async (event, { defaultFileName, content }) => {
+    try {
+        // Open a save dialog to get the file path
+        const { filePath } = await dialog.showSaveDialog({
+            title: 'Save TSV File',
+            defaultPath: path.join(__dirname, defaultFileName),
+            filters: [
+                { name: 'TSV Files', extensions: ['tsv'] },
+                { name: 'All Files', extensions: ['*'] },
+            ],
         });
+
+        // If the user cancels, filePath will be undefined
+        if (!filePath) {
+            return { success: false, message: 'Save operation canceled.' };
+        }
+
+        // Write the content to the selected file
+        fs.writeFileSync(filePath, content, 'utf-8');
+        console.log(`TSV file saved successfully at ${filePath}`);
+        return { success: true, filePath };
+    } catch (error) {
+        console.error('Error saving TSV file:', error);
+        return { success: false, message: error.message };
+    }
+});
+
+ipcMain.on('save-file-to-functions', (event, { name, content }) => {
+    // Path to the 'functions' folder
+    const savePath = path.join(__dirname, 'functions/sources');
   
-        fileStream.on('error', (err) => {
-          reject(`Failed to save file: ${err.message}`);
-        });
-      } catch (error) {
-        reject(`Error: ${error.message}`);
+    // Ensure the 'functions' directory exists
+    if (!fs.existsSync(savePath)) {
+      fs.mkdirSync(savePath);
+    }
+  
+    // Save the file in the 'functions' folder
+    const filePath = path.join(savePath, name);
+  
+    fs.writeFile(filePath, content, (err) => {
+      if (err) {
+        console.error('Error saving file:', err);
+        event.reply('save-file-response', { success: false, error: err.message });
+      } else {
+        console.log('File saved successfully at:', filePath);
+        event.reply('save-file-response', { success: true, path: filePath });
       }
     });
-  });
+});
+
+ipcMain.handle('check-and-load-file', async (event, fileName) => {
+    const filePath = path.join(__dirname, fileName);
+
+    // Check if the file exists
+    if (!fs.existsSync(filePath)) {
+        console.log(`File not found: ${filePath}`);
+        return { exists: false };
+    }
+
+    // Read the file contents
+    try {
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        console.log(`File loaded successfully: ${filePath}`);
+        return { exists: true, content: fileContent };
+    } catch (error) {
+        console.error(`Error reading file: ${error.message}`);
+        throw error;
+    }
+});

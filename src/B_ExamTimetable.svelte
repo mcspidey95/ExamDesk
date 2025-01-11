@@ -15,6 +15,11 @@
   let content = [];
   let rowCount = 0;
   let columnCount = 0;
+  let isFileGenerating = false;
+  let isSidebarOpen = false;
+
+  loadFileIfExists1('functions/sources/StudentRegistration.txt')
+  loadFileIfExists2('functions/sources/FinalCourseData.txt')
   
 	function onDrop1(e) {
 	  e.preventDefault();
@@ -30,6 +35,20 @@
         alert('Please drop a .txt file');
         StudentDataFile1 = null;
       }
+
+      // Read file content
+      const reader = new FileReader();
+      reader.onload = () => {
+        const fileContent = reader.result;
+
+        // Send file content and name to the Electron main process
+        window.api.saveUploadedFile({
+          name: "StudentRegistration.txt",
+          content: fileContent,
+        });
+      };
+
+      reader.readAsText(StudentDataFile1);
 	  }
 	}
 
@@ -47,6 +66,20 @@
         alert('Please drop a .txt file');
         StudentDataFile2 = null;
       }
+
+      // Read file content
+      const reader = new FileReader();
+      reader.onload = () => {
+        const fileContent = reader.result;
+
+        // Send file content and name to the Electron main process
+        window.api.saveUploadedFile({
+          name: "FinalCourseData.txt",
+          content: fileContent,
+        });
+      };
+
+      reader.readAsText(StudentDataFile2);
 	  }
 	}
   
@@ -64,14 +97,42 @@
   
 	function onFileInputChange1(e) {
 	  if (e.target.files && e.target.files[0]) {
-		StudentDataFile1 = e.target.files[0];
+		  StudentDataFile1 = e.target.files[0];
 	  }
+
+    // Read file content
+    const reader = new FileReader();
+    reader.onload = () => {
+      const fileContent = reader.result;
+
+      // Send file content and name to the Electron main process
+      window.api.saveUploadedFile({
+        name: "StudentRegistration.txt",
+        content: fileContent,
+      });
+    };
+
+    reader.readAsText(StudentDataFile1);
 	}
 
   function onFileInputChange2(e) {
 	  if (e.target.files && e.target.files[0]) {
-		StudentDataFile2 = e.target.files[0];
+		  StudentDataFile2 = e.target.files[0];
 	  }
+
+    // Read file content
+    const reader = new FileReader();
+    reader.onload = () => {
+      const fileContent = reader.result;
+
+      // Send file content and name to the Electron main process
+      window.api.saveUploadedFile({
+        name: "FinalCourseData.txt",
+        content: fileContent,
+      });
+    };
+
+    reader.readAsText(StudentDataFile2);
 	}
   
 	function removeFile1() {
@@ -98,6 +159,25 @@
     }
   }
 
+  async function saveTSVFile(fileName) {
+    if(tsvData){
+      try {
+        const result = await window.api.saveTsvFile(fileName, tsvData);
+
+        if (result.success) {
+            console.log(`TSV file saved successfully at ${result.filePath}`);
+            alert(`File saved successfully at: ${result.filePath}`);
+        } else {
+            console.log('Save operation canceled or failed.');
+            alert(result.message || 'File save canceled.');
+        }
+      } catch (error) {
+        console.error('Error saving TSV file:', error);
+        alert('An error occurred while saving the file. Check the console for details.');
+      }
+    }
+  }
+
   // Parse the loaded TSV data
   function parseTSVData() {
     parsedData = tsvData.trim().split("\n").map((row) => row.split("\t"));
@@ -107,17 +187,50 @@
     rowCount = content.length;
   }
 
+  async function loadFileIfExists1(fileName) {
+    const result = await window.api.checkAndLoadFile(fileName);
+
+    if (result.exists) {
+        console.log(`File exists. Content loaded.`);
+        // Save the file content into a variable
+        StudentDataFile1 = {
+          name: "StudentRegistration.txt",
+          content: result.content,
+        };
+        console.log(`File saved to variable: ${StudentDataFile1}`);
+    } 
+  }
+
+  async function loadFileIfExists2(fileName) {
+    const result = await window.api.checkAndLoadFile(fileName);
+
+    if (result.exists) {
+        console.log(`File exists. Content loaded.`);
+        // Save the file content into a variable
+        StudentDataFile2 = {
+          name: "FinalCourseData.txt",
+          content: result.content,
+        };
+        console.log(`File saved to variable: ${StudentDataFile1}`);
+    } 
+  }
+
   async function generate() {
-    if (StudentDataFile1) {
-      try {
-        // Call the main process 'generate' function via IPC
-        const result = await window.api.saveUploadedFile(StudentDataFile1, "testFile", "functions/metadata");
-        console.log(result); // Success message
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    } else {
-      console.error('No file selected');
+    try {
+      console.log('Running Java file...');
+      tsvData = '';
+      isFileGenerating = true;
+      
+      await window.api.runJavaFile('electron/functions/ExamTimetable.class');
+      
+      console.log('Java file execution finished.');
+
+      setTimeout(() => {
+          loadTSVFile('electron/functions/documents/Exam_Timetable.tsv');
+      }, 1000);
+    } catch (error) {
+      console.error('Error during Java file execution:', error);
+      alert('Failed to execute Java file. Check the console for details.');
     }
   }
   
@@ -131,30 +244,75 @@
 	  };
 	});
 
-  window.api.readTxtFile('functions/metadata/parameters.txt').then((data) => {
+  window.api.readTxtFile('electron/functions/metadata/parameters.txt').then((data) => {
     console.log(data);
   }).catch((err) => {
     console.error(err);
   });
-
-  loadTSVFile("functions/documents/Exam_Timetable.tsv");
 </script>
 
 {#if currentView === 'timetable'}
 <body>
   <!-- Navbar -->
   <div class="navbar">
-    <label for="check">
-      <input type="checkbox" id="check"/> 
+    <label for="check" class="sidebar-toggle">
+      <input type="checkbox" id="check" bind:checked={isSidebarOpen} />
       <span></span>
       <span></span>
       <span></span>
-    </label>
+    </label>    
 
     <div class="home-button">
       <span class="home-button" on:click={() => currentView = 'home'}><img src="images/home.png" alt="home">Home</span>
     </div>
     
+  </div>
+
+  <div class="overlay {isSidebarOpen ? 'show' : ''}" on:click={() => (isSidebarOpen = false)}></div>
+
+  <div class="sidebar {isSidebarOpen ? 'open' : ''}">
+    <div class="parameters">
+      <p>EndTerm Mode:</p>
+      <label class="switch">
+        <input type="checkbox" id="endTermMode">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="parameters">
+      <p>Fixed Break:</p>
+      <label class="switch">
+        <input type="checkbox" id="fixedBreak">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="parameters">
+      <p>Slots Per Day:</p>
+      <label class="number">
+        <input type="number" id="slotsPerDay">
+      </label>
+    </div>
+
+    <div class="parameters">
+      <p>Exams Per Slot:</p>
+      <label class="number">
+        <input type="number" id="examsPerSlot">
+      </label>
+    </div>
+
+    <div class="parameters">
+      <p>Students Per Slot:</p>
+      <label class="number">
+        <input type="number" id="studentsPerSlot">
+      </label>
+    </div>
+
+    <div class="parameters">
+      <p>BlackList Courses:</p>
+    </div>
+
+    <textarea id="blacklist"></textarea>
   </div>
 
   <!-- Main Content -->
@@ -187,7 +345,7 @@
                 {#if isDragActive}
                   Drop the file here
                 {:else}
-                  Drag and drop a file here, or click to select a file
+                  Drop or Upload [Student Registration Data]
                 {/if}
               </p>
             </div>
@@ -230,7 +388,7 @@
                 {#if isDragActive}
                   Drop the file here
                 {:else}
-                  Drag and drop a file here, or click to select a file
+                  Drop or Upload [Course Data]
                 {/if}
               </p>
             </div>
@@ -262,10 +420,14 @@
 
 
     <div class="right-section">
-      <div class="a4-container">
+      <div class="a4-container" on:click={saveTSVFile("ExamTimetable.tsv")}>
         <!-- Content inside the A4 container -->
         {#if !tsvData}
-        <p>Output will be displayed here!</p>
+          {#if isFileGenerating}
+            <div class="loader"></div>
+          {:else}
+            <p>Output will be displayed here!</p>
+          {/if}
         {:else}
         <div class="tsv-container scroll_enabled">
           <table>
@@ -323,6 +485,7 @@ body {
   font-size: 1.5rem;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   position: relative;  /* Ensures positioning within navbar */
+  z-index: 3000;
 }
 
 .home-button {
@@ -346,7 +509,8 @@ body {
   margin-right: 3px;
 }
 
-label {
+/* Add a class to scope the styles */
+.sidebar-toggle {
   position: absolute;  /* Position label to the left */
   left: 0;
   display: flex;
@@ -357,60 +521,48 @@ label {
   transition: transform 0.2s ease-in-out;  /* Smooth transition for scaling */
 }
 
-label:hover {
+.sidebar-toggle:hover {
   transform: scale(0.36);
 }
 
-label span{
-  background:#2c3e50;
-  border-radius:10px;
-  height:7px;
+.sidebar-toggle span {
+  background: #2c3e50;
+  border-radius: 10px;
+  height: 7px;
   margin: 7px 0;
-  transition: .4s  cubic-bezier(0.68, -0.6, 0.32, 1.6);
-
+  transition: 0.3s cubic-bezier(0.68, -0.6, 0.32, 1.6);
 }
 
-
-span:nth-of-type(1){
-  width:50%;
-  
+.sidebar-toggle span:nth-of-type(1) {
+  width: 50%;
 }
 
-span:nth-of-type(2){
-  width:100%;
+.sidebar-toggle span:nth-of-type(2) {
+  width: 100%;
 }
 
-
-span:nth-of-type(3){
-  width:75%;
- 
+.sidebar-toggle span:nth-of-type(3) {
+  width: 75%;
 }
 
-
-input[type="checkbox"]{
-  display:none;
+.sidebar-toggle input[type="checkbox"] {
+  display: none;
 }
 
-
-input[type="checkbox"]:checked ~ span:nth-of-type(1){
-  transform-origin:bottom;
-  transform:rotatez(45deg) translate(8px,0px)
+.sidebar-toggle input[type="checkbox"]:checked ~ span:nth-of-type(1) {
+  transform-origin: bottom;
+  transform: rotateZ(45deg) translate(8px, 0px);
 }
 
-
-input[type="checkbox"]:checked ~ span:nth-of-type(2){
-  
-  transform-origin:top;
-  transform:rotatez(-45deg)
+.sidebar-toggle input[type="checkbox"]:checked ~ span:nth-of-type(2) {
+  transform-origin: top;
+  transform: rotateZ(-45deg);
 }
 
-
-input[type="checkbox"]:checked ~ span:nth-of-type(3){
-  
-  transform-origin:bottom;
-  width:50%;
-  transform: translate(30px,-11px) rotatez(45deg);
-
+.sidebar-toggle input[type="checkbox"]:checked ~ span:nth-of-type(3) {
+  transform-origin: bottom;
+  width: 50%;
+  transform: translate(30px, -11px) rotateZ(45deg);
 }
 
 /* Main Content Layout */

@@ -53,6 +53,22 @@ body {
 	border-color: #2c3e50;
 	background-color: #2c3e501a;
 }
+
+.dropzone img{
+	transition: all 0.2s ease-in-out;
+}
+
+.dropzone:hover img{
+	transform: translateY(-5px) scale(1.05);
+}
+
+.dropzone p{
+	transition: all 0.2s ease-in-out;
+}
+
+.dropzone:hover p{
+	transform: translateY(-5px);
+}
   
 .icon img {
 	width: 48px;
@@ -201,10 +217,15 @@ body {
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); /* Sharp shadow effect */
 	margin: auto; /* Center within the parent container */
 	border-radius: 2px; /* Optional, slight corner sharpness */
+	transition: all 0.2s ease-in-out;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	overflow: hidden;
+}
+
+.a4-container:hover{
+	transform: scale(1.02);
 }
 
 .tsv-container {
@@ -247,8 +268,6 @@ tr:nth-child(even) {
 	z-index: 1000;
 }
 
-
-
 .scroll_enabled::-webkit-scrollbar {
     width: 10px; /* Adjust scrollbar width */
     height: 10px; /* Adjust scrollbar height */
@@ -279,4 +298,154 @@ tr:nth-child(even) {
 
 .scroll_enabled::-webkit-scrollbar-track:hover {
     background-color: #2c3e501a; /* Slightly darker track on hover */
+}
+  
+/* Sidebar styles */
+.sidebar {
+	position: fixed;
+	display:flex;
+	flex-direction: column;
+	top: 0;
+	left: -30vw; /* Hide off-screen initially */
+	width: 24vw;
+	height: 100vh;
+	box-sizing: border-box;
+	background-color: #fff;
+	color: #2c3e50;
+	padding-top: 60px;
+	padding-left: 30px;
+	padding-right: 30px;
+	padding-bottom: 30px;
+	z-index: 2000;
+	box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+	transition: left 0.3s ease; /* Smooth sliding */
+}
+  
+.sidebar.open {
+	left: 0; /* Slide in */
+}
+
+.overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+	z-index: 1999; /* Ensure it's just below the sidebar */
+	opacity: 0;
+	pointer-events: none; /* Initially non-interactive */
+	transition: opacity 0.3s ease;
+}
+  
+.overlay.show {
+	opacity: 1;
+	pointer-events: auto; /* Enable clicks to close the sidebar */
+}
+
+
+.loader {
+	width: 10px;
+	aspect-ratio: 1;
+	border-radius: 50%;
+	border: 8px solid;
+	border-color: #2c3e50 #0000;
+	animation: l1 1s infinite;
+}
+@keyframes l1 {to{transform: rotate(.5turn)}}
+
+.switch {
+	font-size: 17px;
+	position: relative;
+	margin-top: 18px;
+	display: inline-block;
+	width: 4em;
+	height: 2em;
+	transform: scale(0.7);
+}
+
+.parameters {
+	display: flex;
+	font-size: 20px;
+}
+
+.parameters p{
+	width: 15vw;
+}
+  
+  /* Hide default HTML checkbox */
+  .switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+  }
+  
+  /* The slider */
+  .slider {
+	position: absolute;
+	cursor: pointer;
+	inset: 0;
+	border: 2px solid #414141;
+	border-radius: 50px;
+	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .slider:before {
+	position: absolute;
+	content: "";
+	height: 1.4em;
+	width: 1.4em;
+	left: 0.2em;
+	bottom: 0.2em;
+	background-color: #2c3e50;
+	border-radius: inherit;
+	transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+  }
+  
+  .switch input:checked + .slider {
+	box-shadow: 0 0 20px #2c3e50cc;
+	border: 2px solid #2c3e50;
+  }
+  
+  .switch input:checked + .slider:before {
+	transform: translateX(2em);
+  }
+
+.parameters input[type=number] {
+	margin-top: 20px;
+	width: 3em;
+	padding: 0.3em;
+	border: .2em solid #2c3e50;
+	border-radius: 1em;
+	text-align: center;
+	color: #2c3e50;
+	font-family: "DMSerif";
+	font-weight: bold;
+}
+
+.parameters input[type=number]::-webkit-outer-spin-button,
+.parameters input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+textarea {
+	flex: 1; /* Allow textarea to grow and take remaining space */
+	width: 100%; /* Full width of the parent container */
+	padding: 0.5em;
+	border: 0.2em solid #2c3e50;
+	border-radius: 1em;
+	resize: none; /* Disable manual resizing */
+	box-sizing: border-box; /* Include padding and border in calculations */
+	font-family: inherit; /* Match parent font */
+	font-size: 1em; /* Adjust font size */
+	background-color: #fff;
+	overflow-y: auto; /* Enable scrolling for overflow content */
+}
+  
+  /* Optional: Add focus styling for textarea */
+  textarea:focus {
+	outline: none;
+	border-color: #414141;
+	box-shadow: 0 0 5px #2c3e50;
 }
