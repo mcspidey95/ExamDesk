@@ -154,6 +154,7 @@ body {
 }
 
 .generate-container {
+	margin-top: 0.25rem;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -166,7 +167,7 @@ body {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 1.5rem 3rem;
+	padding: 1.3rem 2.8rem;
 	font-family: "DMSerif";
 	font-weight: 500;
 	background-color: white;
@@ -190,7 +191,7 @@ body {
 }
 
 .hover-bg.translated{
-	transform: translate(-75%, 47%) rotate(-40deg);
+	transform: translate(-70%, 47%) rotate(-40deg);
 }
   
 .button:hover .hover-bg {
