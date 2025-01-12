@@ -244,9 +244,9 @@
       
         console.log('Java file execution finished.');
 
-        setTimeout(() => {
-          loadTSVFile('electron/functions/documents/Exam_Timetable.tsv');
-        }, 1000);
+        setTimeout(async () => {
+          await loadTSVFile('electron/functions/documents/Exam_Timetable.tsv');
+        }, 500);
 
         showToast('Exam Timetable Generated!')
       } catch (error) {
@@ -407,8 +407,10 @@ STUDENTS_PER_SLOT: ${studentsPerSlot}`.trim();
 
 
     <div class="indicator">
-      {#if isUsingOldFiles && !isSidebarOpen}
-      <span id="warning">Reusing Previous Files</span>
+      {#if tsvData && !isSidebarOpen}
+			  <span id="warning">Exam Timetable Generated!</span>
+      {:else if isUsingOldFiles && !isSidebarOpen}
+        <span id="warning">Reusing Previous Files</span>
       {/if}
     </div>
     
@@ -459,7 +461,7 @@ STUDENTS_PER_SLOT: ${studentsPerSlot}`.trim();
       <p>BlackList Courses:</p>
     </div>
 
-    <textarea id="blacklist scroll_enabled" bind:value={blacklistCourses}></textarea>
+    <textarea class="scroll_enabled" bind:value={blacklistCourses}></textarea>
   </div>
 
   <!-- Main Content -->

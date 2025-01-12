@@ -285,6 +285,42 @@ tr:nth-child(even) {
 	z-index: 1000;
 }
 
+.tsv-changer {
+	position: absolute;
+	bottom: 15px;
+	left: 15px;
+	height: 40px;
+	width: 40px;
+	padding: 5px;
+	border-radius: 4px;
+	font-size: 12px;
+	background-color: #f8f9fa;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	opacity: 0.95;
+	box-sizing: border-box;
+	z-index: 1000;
+	transition: all 0.3s ease-in-out;
+}
+
+.tsv-changer img{
+	height: 30px;
+	width: 30px;
+}
+
+.tsv-changer:hover{
+	transform: scale(1.1);
+}
+
+.a4-container.view1 .tsv-changer img {
+	transform: rotate(180deg);
+	transition: transform 0.3s ease-in-out;
+  }
+  
+  .a4-container.view2 .tsv-changer img {
+	transform: rotate(0deg);
+	transition: transform 0.3s ease-in-out;
+  }
+
 .scroll_enabled::-webkit-scrollbar {
     width: 10px; /* Adjust scrollbar width */
     height: 10px; /* Adjust scrollbar height */
@@ -394,13 +430,20 @@ tr:nth-child(even) {
 	margin-right: 5px;
 	width: 3em;
 	padding: 0.3em;
-	border: .2em solid #fff;
-	box-shadow: 0 0 8px #ffffff4d;
+	border: .2em solid #2c3e50;
+	box-shadow: 0 0 8px #2c3e50;
 	border-radius: 1em;
 	text-align: center;
 	color: #2c3e50;
 	font-family: "DMSerif";
 	font-weight: bold;
+	transition: all 0.2s ease;
+}
+
+.parameters input[type=number]:focus{
+	outline: none;
+	border-color: #fff;
+	box-shadow: 0 0 8px #ffffff4d;
 }
 
 .parameters input[type=number]::-webkit-outer-spin-button,
@@ -462,8 +505,8 @@ textarea {
 	flex: 1; /* Allow textarea to grow and take remaining space */
 	width: 100%; /* Full width of the parent container */
 	padding: 0.5em;
-	border: 0.2em solid #fff;
-	box-shadow: 0 0 5px #ffffff41;
+	border: 0.2em solid #2c3e50;
+	box-shadow: 0 0 5px #2c3e50;
 	border-radius: 1em;
 	resize: none; /* Disable manual resizing */
 	box-sizing: border-box; /* Include padding and border in calculations */
@@ -472,12 +515,13 @@ textarea {
 	font-weight: 600;
 	background-color: #fff;
 	overflow-y: auto; /* Enable scrolling for overflow content */
+	transition: all 0.2s ease;
 }
   
 textarea:focus {
 	outline: none;
-	border-color: #414141;
-	box-shadow: 0 0 5px #2c3e50;
+	border-color: #fff;
+	box-shadow: 0 0 8px #ffffff41;
 }
 
 .toast-container {
