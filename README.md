@@ -47,8 +47,8 @@ This project combines a modern UI built with [Svelte](https://svelte.dev/), robu
 3. Upload the required files and click the **Generate** button.
 4. *(Optional)* Adjust parameters in the side menu as needed.
 5. Once the file is generated:
-   - Click **Preview** to review the output.
-   - Export the file to save it locally.
+   - Check the **Preview Tab** to review the output.
+   - Click on the preview to export the file and save it locally.
 
 ---
 
