@@ -1,5 +1,7 @@
 # ExamDesk
 
+![Screenshot 2025-01-13 194333](https://github.com/user-attachments/assets/6450b8ef-5bbb-473b-ab01-760329ad6dd5)
+
 **ExamDesk** is a powerful tool designed to automate the tedious process of managing exams. It helps educational institutions generate exam timetables, seating arrangements, and invigilator assignments in seconds.
 
 This project combines a modern UI built with [Svelte](https://svelte.dev/), robust logic implemented in Java, and desktop packaging with [Electron](https://www.electronjs.org/).
