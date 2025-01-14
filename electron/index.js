@@ -130,9 +130,9 @@ ipcMain.handle('save-tsv-file', async (event, { defaultFileName, content }) => {
     }
 });
 
-ipcMain.on('save-file-to-functions', (event, { name, content }) => {
+ipcMain.on('save-file-to-functions', (event, folderPath, { name, content }) => {
     // Path to the 'functions' folder
-    const savePath = path.join(__dirname, 'functions/sources');
+    const savePath = path.resolve(folderPath);
   
     // Ensure the 'functions' directory exists
     if (!fs.existsSync(savePath)) {
@@ -154,7 +154,7 @@ ipcMain.on('save-file-to-functions', (event, { name, content }) => {
 });
 
 ipcMain.handle('check-and-load-file', async (event, fileName) => {
-    const filePath = path.join(__dirname, fileName);
+    const filePath = path.resolve(fileName);
 
     // Check if the file exists
     if (!fs.existsSync(filePath)) {

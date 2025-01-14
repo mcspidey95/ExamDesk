@@ -1,6 +1,9 @@
 {
-  "name": "svelte-app",
-  "version": "1.2",
+  "name": "examdesk",
+  "productName": "ExamDesk",
+  "author": "Manish Bhat",
+  "description": "An Exam Management Tool",
+  "version": "1.2.1",
   "private": true,
   "main": "./electron/index.js",
   "scripts": {
@@ -24,5 +27,21 @@
   "dependencies": {
     "express": "^4.21.2",
     "sirv-cli": "^2.0.0"
+  },
+  "build": {
+    "appId": "com.mcspidey95.examdesk",
+    "extraResources": [
+      {
+        "from": "electron/functions",
+        "to": "../electron/functions"
+      }
+    ],
+    "icon": "electron/icon",
+    "win": {
+      "icon": "/electron/icon.ico"
+    },
+    "linux": {
+      "icon": "electron/icon.png"
+    }
   }
 }

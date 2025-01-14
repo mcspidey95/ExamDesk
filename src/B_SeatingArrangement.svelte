@@ -30,10 +30,10 @@
 	let isTimetableGenerated = false;
 	let selectedTSVFile = 1;
   
-	loadFileIfExists1('functions/sources/StudentRegistration.txt')
-	loadFileIfExists2('functions/sources/FinalCourseData.txt')
-	loadFileIfExists3('functions/sources/Rooms.txt')
-	loadFileIfExists4('functions/sources/Invigilators.txt')
+	loadFileIfExists1('electron/functions/sources/StudentRegistration.txt')
+	loadFileIfExists2('electron/functions/sources/FinalCourseData.txt')
+	loadFileIfExists3('electron/functions/sources/Rooms.txt')
+	loadFileIfExists4('electron/functions/sources/Invigilators.txt')
 	
 	  function onDrop1(e) {
 		e.preventDefault();
@@ -56,7 +56,7 @@
 		  const fileContent = reader.result;
   
 		  // Send file content and name to the Electron main process
-		  window.api.saveUploadedFile({
+		  window.api.saveUploadedFile('electron/functions/sources', {
 			name: "StudentRegistration.txt",
 			content: fileContent,
 		  });
@@ -87,7 +87,7 @@
 		  const fileContent = reader.result;
   
 		  // Send file content and name to the Electron main process
-		  window.api.saveUploadedFile({
+		  window.api.saveUploadedFile('electron/functions/sources', {
 			name: "FinalCourseData.txt",
 			content: fileContent,
 		  });
@@ -118,7 +118,7 @@
 		  const fileContent = reader.result;
   
 		  // Send file content and name to the Electron main process
-		  window.api.saveUploadedFile({
+		  window.api.saveUploadedFile('electron/functions/sources', {
 			name: "Rooms.txt",
 			content: fileContent,
 		  });
@@ -149,7 +149,7 @@
 		  const fileContent = reader.result;
   
 		  // Send file content and name to the Electron main process
-		  window.api.saveUploadedFile({
+		  window.api.saveUploadedFile('electron/functions/sources', {
 			name: "Invigiltors.txt",
 			content: fileContent,
 		  });
@@ -182,7 +182,7 @@
 		const fileContent = reader.result;
   
 		// Send file content and name to the Electron main process
-		window.api.saveUploadedFile({
+		window.api.saveUploadedFile('electron/functions/sources', {
 		  name: "StudentRegistration.txt",
 		  content: fileContent,
 		});
@@ -202,7 +202,7 @@
 		const fileContent = reader.result;
   
 		// Send file content and name to the Electron main process
-		window.api.saveUploadedFile({
+		window.api.saveUploadedFile('electron/functions/sources', {
 		  name: "FinalCourseData.txt",
 		  content: fileContent,
 		});
@@ -222,7 +222,7 @@
 		const fileContent = reader.result;
   
 		// Send file content and name to the Electron main process
-		window.api.saveUploadedFile({
+		window.api.saveUploadedFile('electron/functions/sources', {
 		  name: "Rooms.txt",
 		  content: fileContent,
 		});
@@ -242,7 +242,7 @@
 		const fileContent = reader.result;
   
 		// Send file content and name to the Electron main process
-		window.api.saveUploadedFile({
+		window.api.saveUploadedFile('electron/functions/sources', {
 		  name: "Invigilators.txt",
 		  content: fileContent,
 		});

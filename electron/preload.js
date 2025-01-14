@@ -13,7 +13,7 @@ const WINDOW_API = {
 
     saveTsvFile: (fileName, content) => ipcRenderer.invoke('save-tsv-file', { defaultFileName: fileName, content }),
 
-    saveUploadedFile: (fileData) => ipcRenderer.send('save-file-to-functions', fileData),
+    saveUploadedFile: (filePath, fileData) => ipcRenderer.send('save-file-to-functions', filePath, fileData),
 
     checkAndLoadFile: (fileName) => ipcRenderer.invoke('check-and-load-file', fileName),
 }

@@ -28,8 +28,8 @@
   let isToastVisible = false;
   let isUsingOldFiles = false;
 
-  loadFileIfExists1('functions/sources/StudentRegistration.txt')
-  loadFileIfExists2('functions/sources/FinalCourseData.txt')
+  loadFileIfExists1('electron/functions/sources/StudentRegistration.txt')
+  loadFileIfExists2('electron/functions/sources/FinalCourseData.txt')
   
 	function onDrop1(e) {
 	  e.preventDefault();
@@ -52,7 +52,7 @@
         const fileContent = reader.result;
 
         // Send file content and name to the Electron main process
-        window.api.saveUploadedFile({
+        window.api.saveUploadedFile('electron/functions/sources', {
           name: "StudentRegistration.txt",
           content: fileContent,
         });
@@ -84,7 +84,7 @@
         const fileContent = reader.result;
 
         // Send file content and name to the Electron main process
-        window.api.saveUploadedFile({
+        window.api.saveUploadedFile('electron/functions/sources', {
           name: "FinalCourseData.txt",
           content: fileContent,
         });
@@ -118,7 +118,7 @@
       const fileContent = reader.result;
 
       // Send file content and name to the Electron main process
-      window.api.saveUploadedFile({
+      window.api.saveUploadedFile('electron/functions/sources', {
         name: "StudentRegistration.txt",
         content: fileContent,
       });
@@ -139,7 +139,7 @@
       const fileContent = reader.result;
 
       // Send file content and name to the Electron main process
-      window.api.saveUploadedFile({
+      window.api.saveUploadedFile('electron/functions/sources', {
         name: "FinalCourseData.txt",
         content: fileContent,
       });
@@ -276,6 +276,10 @@
       });
 
       showToast("Value must be in the Range [2-3]");
+
+      setTimeout(() => {
+        toastText = '';
+      }, 3000);
     }
   }
 
@@ -287,6 +291,10 @@
       });
 
       showToast("Value must be in the Range [1-2]");
+
+      setTimeout(() => {
+        toastText = '';
+      }, 3000);
     }
   }
 
@@ -298,6 +306,10 @@
       });
 
       showToast("Value must be in the Range [1-8000]");
+      
+      setTimeout(() => {
+        toastText = '';
+      }, 3000);
     }
   }
 
@@ -356,7 +368,7 @@ SLOTS_PER_DAY: ${slotsPerDay}
 EXAMS_PER_SLOT: ${examsPerSlot}
 STUDENTS_PER_SLOT: ${studentsPerSlot}`.trim();
 
-        showToast("Parameters Saved!");
+        if(!toastText.includes('Value')) showToast("Parameters Saved!");
 
         window.api.writeToTxtFile('electron/functions/metadata/parameters.txt', parameterContent)
         .then((message) => {
