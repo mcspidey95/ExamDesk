@@ -1,6 +1,6 @@
 # ExamDesk
 
-![Screenshot 2025-01-13 194333](https://github.com/user-attachments/assets/6450b8ef-5bbb-473b-ab01-760329ad6dd5)
+![Screenshot 2025-01-13 194333](https://raw.githubusercontent.com/mcspidey95/mcspidey95.github.io/master/src/components/Projects/previews/examdesk.gif)
 
 **ExamDesk** is a powerful tool designed to automate the tedious process of managing exams. It helps educational institutions generate exam timetables, seating arrangements, and invigilator assignments in seconds.
 
